@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import BootScreen from '@/components/BootScreen';
+import dynamic from 'next/dynamic';
 import Sidebar from '@/components/Sidebar';
 import DashboardOverview from '@/components/DashboardOverview';
 import SearchBar from '@/components/SearchBar';
@@ -11,7 +11,6 @@ import PulseDashboard from '@/components/PulseDashboard';
 import SmartBriefing from '@/components/SmartBriefing';
 import LearningComponent from '@/components/LearningComponent';
 import CodeGames from '@/components/CodeGames';
-
 import FocusMode from '@/components/FocusMode';
 import FileShare from '@/components/FileShare';
 import OracleSearch from '@/components/OracleSearch';
@@ -29,8 +28,13 @@ import ClubsEvents from '@/components/ClubsEvents';
 import StudyBuddy from '@/components/StudyBuddy';
 import BudgetTracker from '@/components/BudgetTracker';
 import AttendanceTracker from '@/components/AttendanceTracker';
-import CampusExplorer from '@/components/CampusExplorer';
 import AIAssistant from '@/components/AIAssistant';
+import LearningHub from '@/components/LearningHub';
+import AiMockInterview from '@/components/AiMockInterview';
+import AiRoadmap from '@/components/AiRoadmap';
+import CampusExplorer from '@/components/CampusExplorer';
+
+const BootScreen = dynamic(() => import('@/components/BootScreen'), { ssr: false });
 
 export default function Home() {
   const [booted, setBooted] = useState(false);
@@ -57,6 +61,8 @@ export default function Home() {
         return <TimetableHelper />;
       case 'search':
         return <OracleSearch />;
+      case 'campus':
+        return <CampusExplorer />;
       case 'process':
         return <ProcessGPS />;
       case 'pulse':
@@ -155,7 +161,7 @@ export default function Home() {
       {/* Main content area */}
       <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Primary content */}
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8">
+        <main className={`flex-1 overflow-y-auto ${activeSection === 'campus' ? 'p-0 relative' : 'p-6 lg:p-8'}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}
@@ -163,15 +169,12 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="max-w-5xl mx-auto"
+              className={`${activeSection === 'campus' ? 'w-full h-full' : 'max-w-5xl mx-auto'} animate-in`}
             >
               {renderMainContent()}
             </motion.div>
           </AnimatePresence>
         </main>
-
-        {/* Right sidebar — Smart Briefing (visible on dashboard and when screen is wide) */}
-        {/* Right sidebar — Smart Briefing was removed from dashboard view per user request */}
       </div>
 
       <AnimatePresence>
