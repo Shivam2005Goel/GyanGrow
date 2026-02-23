@@ -31,6 +31,7 @@ import AttendanceTracker from '@/components/AttendanceTracker';
 import AIAssistant from '@/components/AIAssistant';
 import LearningHub from '@/components/LearningHub';
 import AiMockInterview from '@/components/AiMockInterview';
+import MrVighelp from '@/components/MrVighelp';
 import AiRoadmap from '@/components/AiRoadmap';
 import CampusExplorer from '@/components/CampusExplorer';
 
@@ -131,6 +132,8 @@ export default function Home() {
         return <DashboardOverview />; // Render dashboard underneath the focus overlay
       case 'answer-key':
         return <AnswerKeyManager />;
+      case 'mock-interview':
+        return <AiMockInterview />;
       default:
         return <DashboardOverview />;
     }
@@ -182,6 +185,7 @@ export default function Home() {
           <FocusMode onClose={() => setActiveSection('dashboard')} />
         )}
       </AnimatePresence>
+      <MrVighelp />
     </div>
   );
 }

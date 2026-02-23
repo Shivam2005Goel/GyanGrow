@@ -962,7 +962,6 @@ export default function CampusExplorer() {
                                 )}
                             </>
                         )}
->>>>>>> e722cdf (Merged remote main with campus-explorer map and svg icon fixes)
                     </div>
                 </div>
             </div>

@@ -62,6 +62,7 @@ const navItems = [
     { id: 'admin-automation', label: 'Admin Auto', icon: Zap },
     { id: 'group-study', label: 'Group Study', icon: HandHeart },
     { id: 'quick-poll', label: 'Quick Poll', icon: Vote },
+    { id: 'mock-interview', label: 'Mock Interview', icon: Users },
     { id: 'focus', label: 'Zen Focus', icon: Brain },
 ];
 
