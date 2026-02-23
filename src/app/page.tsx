@@ -23,10 +23,14 @@ import TimetableHelper from '@/components/TimetableHelper';
 import RoommateMatch from '@/components/RoommateMatch';
 import NoteShare from '@/components/NoteShare';
 import AdminAutomation from '@/components/AdminAutomation';
+import GroupStudy from '@/components/GroupStudy';
+import QuickPoll from '@/components/QuickPoll';
 import ClubsEvents from '@/components/ClubsEvents';
 import StudyBuddy from '@/components/StudyBuddy';
 import BudgetTracker from '@/components/BudgetTracker';
 import AttendanceTracker from '@/components/AttendanceTracker';
+import CampusExplorer from '@/components/CampusExplorer';
+import AIAssistant from '@/components/AIAssistant';
 
 export default function Home() {
   const [booted, setBooted] = useState(false);
@@ -107,6 +111,10 @@ export default function Home() {
         return <NoteShare />;
       case 'admin-automation':
         return <AdminAutomation />;
+      case 'group-study':
+        return <GroupStudy />;
+      case 'quick-poll':
+        return <QuickPoll />;
       case 'study-buddy':
         return <StudyBuddy />;
       case 'budget':

@@ -26,7 +26,10 @@ import {
     Tent,
     BookOpenCheck,
     Wallet,
-    BarChart3
+    BarChart3,
+    Vote,
+    HandHeart,
+    MapPin
 } from 'lucide-react';
 import { currentUser } from '@/data/mockData';
 
@@ -38,6 +41,7 @@ interface SidebarProps {
 const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'timetable', label: 'Timetable', icon: Calendar },
+    { id: 'campus', label: 'Campus Explorer', icon: MapPin },
     { id: 'search', label: 'Oracle Search', icon: Search },
     { id: 'answer-key', label: 'Answer Key', icon: FileText },
     { id: 'learning', label: 'Learning Hub', icon: GraduationCap },
@@ -56,6 +60,8 @@ const navItems = [
     { id: 'pulse', label: 'Pulse Analytics', icon: Activity },
     { id: 'briefing', label: 'Smart Briefing', icon: Bell },
     { id: 'admin-automation', label: 'Admin Auto', icon: Zap },
+    { id: 'group-study', label: 'Group Study', icon: HandHeart },
+    { id: 'quick-poll', label: 'Quick Poll', icon: Vote },
     { id: 'focus', label: 'Zen Focus', icon: Brain },
 ];
 
