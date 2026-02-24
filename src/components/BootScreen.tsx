@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import ShaderBackground from '@/components/ui/shader-background';
 
 interface BootScreenProps {
     onComplete: () => void;
@@ -50,7 +51,8 @@ export default function BootScreen({ onComplete }: BootScreenProps) {
     }, [currentStage, bookOpen, onComplete]);
 
     return (
-        <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#040812] transition-opacity duration-700 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
+        <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-transparent transition-opacity duration-700 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
+            <ShaderBackground />
             {/* Ambient Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] animate-pulse" />

@@ -20,7 +20,7 @@ export default function Squares({
     className = '',
 }: SquaresProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const requestRef = useRef<number>();
+    const requestRef = useRef<number | null>(null);
     const gridOffset = useRef({ x: 0, y: 0 });
     const hoveredSquare = useRef<{ x: number; y: number } | null>(null);
     const mousePos = useRef({ x: -1000, y: -1000 });
