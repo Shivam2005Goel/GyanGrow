@@ -34,6 +34,7 @@ import AiMockInterview from '@/components/AiMockInterview';
 import MrVighelp from '@/components/MrVighelp';
 import AiRoadmap from '@/components/AiRoadmap';
 import CampusExplorer from '@/components/CampusExplorer';
+import VisualAlgorithms from '@/components/VisualAlgorithms';
 
 const BootScreen = dynamic(() => import('@/components/BootScreen'), { ssr: false });
 
@@ -134,6 +135,8 @@ export default function Home() {
         return <AnswerKeyManager />;
       case 'mock-interview':
         return <AiMockInterview />;
+      case 'visual-algos':
+        return <VisualAlgorithms />;
       default:
         return <DashboardOverview />;
     }

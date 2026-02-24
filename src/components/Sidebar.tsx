@@ -29,7 +29,8 @@ import {
     BarChart3,
     Vote,
     HandHeart,
-    MapPin
+    MapPin,
+    Binary
 } from 'lucide-react';
 import { currentUser } from '@/data/mockData';
 
@@ -45,6 +46,7 @@ const navItems = [
     { id: 'search', label: 'Oracle Search', icon: Search },
     { id: 'answer-key', label: 'Answer Key', icon: FileText },
     { id: 'learning', label: 'Learning Hub', icon: GraduationCap },
+    { id: 'visual-algos', label: 'Visual Algos', icon: Binary },
     { id: 'study-materials', label: 'Study Materials', icon: Library },
     { id: 'fileshare', label: 'File Share', icon: Share2 },
     { id: 'career', label: 'Career Hub', icon: Rocket },
