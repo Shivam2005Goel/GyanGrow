@@ -31,7 +31,16 @@ import {
     HandHeart,
     MapPin,
     Binary,
-    Bot
+    Bot,
+    FlaskConical,
+    Timer,
+    Award,
+    Target,
+    BookMarked,
+    HelpCircle,
+    Heart,
+    Users2,
+    Car
 } from 'lucide-react';
 import { currentUser } from '@/data/mockData';
 
@@ -68,6 +77,14 @@ const navItems = [
     { id: 'mock-interview', label: 'Mock Interview', icon: Users },
     { id: 'ai-chat', label: 'AI Chat', icon: Bot },
     { id: 'focus', label: 'Zen Focus', icon: Brain },
+    { id: 'ai-roadmap', label: 'AI Roadmap', icon: MapPin },
+    { id: 'flashcards', label: 'Flashcards', icon: BookMarked },
+    { id: 'exam-countdown', label: 'Exam Countdown', icon: FlaskConical },
+    { id: 'pomodoro', label: 'Pomodoro', icon: Timer },
+    { id: 'gpa', label: 'GPA Calc', icon: Award },
+    { id: 'skills', label: 'Skill Tracker', icon: Target },
+    { id: 'partner-match', label: 'Partner Match', icon: Heart },
+    { id: 'travel-pool', label: 'Travel Pool', icon: Car },
 ];
 
 const bottomItems = [

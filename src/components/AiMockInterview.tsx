@@ -19,6 +19,7 @@ export default function AiMockInterview() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [messages, setMessages] = useState<InterviewMessage[]>([]);
+    const [streamReady, setStreamReady] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -27,19 +28,33 @@ export default function AiMockInterview() {
     const recognitionRef = useRef<any>(null);
     const faceDetectorRef = useRef<FaceDetector | null>(null);
     const requestRef = useRef<number>(0);
+    const streamRef = useRef<MediaStream | null>(null);
+
+    // Stop camera helper (stable ref)
+    const stopCamera = useCallback(() => {
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+        if (videoRef.current) {
+            videoRef.current.srcObject = null;
+        }
+        setStreamReady(false);
+    }, []);
 
     // Initialize Gemini Chat Session (Using REST Streaming)
     const initInterview = useCallback(async () => {
-        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
-            setError('Gemini API key is missing. Please configure your environment.');
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        if (!apiKey) {
+            setError("Gemini API key is not configured. Camera is still active.");
             return;
         }
 
         try {
-            const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
-            // Reverting to gemini-2.0-flash-exp as it is robust for generateContentStream
+            const genAI = new GoogleGenerativeAI(apiKey);
+            // Using gemini-2.5-flash-lite — cost-efficient with separate quota
             const model = genAI.getGenerativeModel({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-2.5-flash-lite',
                 systemInstruction: `You are a highly experienced strict, professional technical interviewer from a top-tier tech company. 
                 You are currently conducting a mock software engineering interview with a student candidate via video call.
                 
@@ -66,9 +81,10 @@ export default function AiMockInterview() {
 
         } catch (e: any) {
             console.error("Failed to initialize interview", e);
-            setError(e.message || "Failed to initialize the AI Mock Interviewer.");
+            // Show the error but keep camera running — don't kill the session
+            setError(e.message || "Failed to initialize the AI Mock Interviewer. Try checking your API key.");
         }
-    }, []);
+    }, [stopCamera]);
 
     // Initialize Face Detector
     useEffect(() => {
@@ -116,36 +132,43 @@ export default function AiMockInterview() {
                             const score = detections.detections[0].categories[0].score;
 
                             if (box) {
-                                // Mirror the coordinates since video is scaleX(-1)
-                                const flippedX = canvas.width - (box.originX + box.width);
+                                // Canvas is also mirrored via CSS scaleX(-1) like the video,
+                                // so we use the raw detection coordinates directly
+                                const x = box.originX;
+                                const y = box.originY;
 
                                 ctx.strokeStyle = '#34d399';
                                 ctx.lineWidth = 2;
                                 ctx.setLineDash([8, 8]);
-                                ctx.strokeRect(flippedX, box.originY, box.width, box.height);
+                                ctx.strokeRect(x, y, box.width, box.height);
 
                                 const cornerLen = 15;
                                 ctx.setLineDash([]);
                                 ctx.lineWidth = 3;
 
-                                ctx.beginPath(); ctx.moveTo(flippedX, box.originY + cornerLen); ctx.lineTo(flippedX, box.originY); ctx.lineTo(flippedX + cornerLen, box.originY); ctx.stroke();
-                                ctx.beginPath(); ctx.moveTo(flippedX + box.width - cornerLen, box.originY); ctx.lineTo(flippedX + box.width, box.originY); ctx.lineTo(flippedX + box.width, box.originY + cornerLen); ctx.stroke();
-                                ctx.beginPath(); ctx.moveTo(flippedX, box.originY + box.height - cornerLen); ctx.lineTo(flippedX, box.originY + box.height); ctx.lineTo(flippedX + cornerLen, box.originY + box.height); ctx.stroke();
-                                ctx.beginPath(); ctx.moveTo(flippedX + box.width - cornerLen, box.originY + box.height); ctx.lineTo(flippedX + box.width, box.originY + box.height); ctx.lineTo(flippedX + box.width, box.originY + box.height - cornerLen); ctx.stroke();
+                                // Top-left corner
+                                ctx.beginPath(); ctx.moveTo(x, y + cornerLen); ctx.lineTo(x, y); ctx.lineTo(x + cornerLen, y); ctx.stroke();
+                                // Top-right corner
+                                ctx.beginPath(); ctx.moveTo(x + box.width - cornerLen, y); ctx.lineTo(x + box.width, y); ctx.lineTo(x + box.width, y + cornerLen); ctx.stroke();
+                                // Bottom-left corner
+                                ctx.beginPath(); ctx.moveTo(x, y + box.height - cornerLen); ctx.lineTo(x, y + box.height); ctx.lineTo(x + cornerLen, y + box.height); ctx.stroke();
+                                // Bottom-right corner
+                                ctx.beginPath(); ctx.moveTo(x + box.width - cornerLen, y + box.height); ctx.lineTo(x + box.width, y + box.height); ctx.lineTo(x + box.width, y + box.height - cornerLen); ctx.stroke();
 
                                 ctx.font = "bold 12px monospace";
                                 ctx.fillStyle = "#34d399";
-                                ctx.fillText(`[FACE] CONF: ${(score * 100).toFixed(1)}%`, flippedX, Math.max(20, box.originY - 10));
+                                ctx.fillText(`[FACE] CONF: ${(score * 100).toFixed(1)}%`, x, Math.max(20, y - 10));
 
-                                const centerX = flippedX + (box.width / 2);
-                                const centerY = box.originY + (box.height / 2);
+                                // Crosshair at face center
+                                const centerX = x + (box.width / 2);
+                                const centerY = y + (box.height / 2);
                                 ctx.fillStyle = "rgba(52, 211, 153, 0.5)";
                                 ctx.fillRect(centerX - 10, centerY - 1, 20, 2);
                                 ctx.fillRect(centerX - 1, centerY - 10, 2, 20);
                             }
                         }
                     }
-                } catch (e) { }
+                } catch (e) { /* detection may fail on some frames, skip silently */ }
             }
         }
 
@@ -167,7 +190,7 @@ export default function AiMockInterview() {
         };
     }, [isActive, renderLoop]);
 
-    // Setup Web Speech Recognition
+    // Setup Web Speech Recognition (mount-only, no isActive dependency)
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -179,7 +202,7 @@ export default function AiMockInterview() {
 
                 recognitionRef.current.onresult = (event: any) => {
                     const transcript = event.results[event.results.length - 1][0].transcript;
-                    if (transcript.trim() && isActive) {
+                    if (transcript.trim()) {
                         handleCandidateAnswer(transcript);
                     }
                 };
@@ -199,6 +222,7 @@ export default function AiMockInterview() {
             }
         }
 
+        // Cleanup only on unmount — NOT on isActive changes
         return () => {
             if (recognitionRef.current) {
                 recognitionRef.current.stop();
@@ -206,7 +230,60 @@ export default function AiMockInterview() {
             window.speechSynthesis.cancel();
             stopCamera();
         };
-    }, [isActive]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Start camera with proper metadata-ready handling
+    const startCamera = useCallback(async (): Promise<boolean> => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'user'
+                },
+                audio: true
+            });
+
+            streamRef.current = stream;
+
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+
+                // Wait for the video metadata to load before playing
+                await new Promise<void>((resolve, reject) => {
+                    const video = videoRef.current!;
+                    const onLoaded = () => {
+                        video.removeEventListener('loadedmetadata', onLoaded);
+                        video.removeEventListener('error', onError);
+                        resolve();
+                    };
+                    const onError = () => {
+                        video.removeEventListener('loadedmetadata', onLoaded);
+                        video.removeEventListener('error', onError);
+                        reject(new Error('Video failed to load metadata'));
+                    };
+
+                    // If already loaded (e.g. from cached stream), resolve immediately
+                    if (video.readyState >= 1) {
+                        resolve();
+                    } else {
+                        video.addEventListener('loadedmetadata', onLoaded);
+                        video.addEventListener('error', onError);
+                    }
+                });
+
+                await videoRef.current.play();
+                setStreamReady(true);
+            }
+            return true;
+        } catch (err: any) {
+            console.error("Error accessing camera:", err);
+            setError(`Could not access webcam: ${err.message}. Camera permissions are required for the AI to analyze your body language.`);
+            stopCamera();
+            return false;
+        }
+    }, [stopCamera]);
 
     // Start/Stop Interview
     const toggleInterview = async () => {
@@ -224,31 +301,6 @@ export default function AiMockInterview() {
                 setIsActive(true);
                 await initInterview();
             }
-        }
-    };
-
-    const startCamera = async (): Promise<boolean> => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { width: 1280, height: 720, facingMode: 'user' },
-                audio: true
-            });
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-            }
-            return true;
-        } catch (err: any) {
-            console.error("Error accessing camera:", err);
-            setError(`Could not access webcam: ${err.message}. Camera permissions are required for the AI to analyze your body language.`);
-            return false;
-        }
-    };
-
-    const stopCamera = () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach(track => track.stop());
-            videoRef.current.srcObject = null;
         }
     };
 
@@ -273,10 +325,19 @@ export default function AiMockInterview() {
     };
 
     const handleCandidateAnswer = async (transcript: string) => {
-        if (!chatSessionRef.current || !isActive) return;
+        if (!isActive) return;
 
         addMessage('candidate', transcript);
         setIsProcessing(true);
+
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        if (!apiKey) {
+            setError("Gemini API key is not configured.");
+            setIsProcessing(false);
+            return;
+        }
+
+        if (!chatSessionRef.current) return;
 
         const base64Frame = captureFrame();
 
@@ -306,7 +367,7 @@ export default function AiMockInterview() {
 
         } catch (err: any) {
             console.error("AI Generation Error", err);
-            const fallbackMsg = "I'm having trouble processing that right now. Let's try again in a moment.";
+            const fallbackMsg = "I'm having trouble connecting to my servers right now. Let's try again in a moment.";
             addMessage('interviewer', fallbackMsg);
             speakResponse(fallbackMsg);
         } finally {
@@ -428,28 +489,29 @@ export default function AiMockInterview() {
                             autoPlay
                             playsInline
                             muted
-                            className={`absolute inset-0 w-full h-full object-cover ${!isActive ? 'opacity-0' : 'opacity-100'} transition-opacity duration-700`}
+                            className={`absolute inset-0 w-full h-full object-cover ${!(isActive && streamReady) ? 'opacity-0' : 'opacity-100'} transition-opacity duration-700`}
                             style={{ transform: 'scaleX(-1)' }}
                         />
 
-                        {!isActive && (
+                        {!(isActive && streamReady) && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-white/30 gap-4 p-8 text-center bg-black/40 backdrop-blur-sm z-10">
                                 <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center bg-white/5">
                                     <Camera size={32} />
                                 </div>
                                 <div>
-                                    <p className="text-white/60 font-medium text-lg">Camera is off</p>
-                                    <p className="text-xs mt-2 max-w-xs mx-auto">Start the session to enable webcam and microphone for body language and voice analysis.</p>
+                                    <p className="text-white/60 font-medium text-lg">{isActive ? 'Starting camera...' : 'Camera is off'}</p>
+                                    <p className="text-xs mt-2 max-w-xs mx-auto">{isActive ? 'Please wait while the webcam initializes...' : 'Start the session to enable webcam and microphone for body language and voice analysis.'}</p>
                                 </div>
                             </div>
                         )}
 
                         {isActive && (
                             <>
-                                {/* Real Face Tracking Overlay */}
+                                {/* Real Face Tracking Overlay — mirrored to match the video feed */}
                                 <canvas
                                     ref={trackingCanvasRef}
                                     className="absolute inset-0 w-full h-full pointer-events-none z-10 block"
+                                    style={{ transform: 'scaleX(-1)' }}
                                 />
 
                                 {/* Overlay Stats */}

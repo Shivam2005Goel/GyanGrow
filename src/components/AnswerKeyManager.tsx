@@ -13,9 +13,7 @@ import {
 } from 'lucide-react';
 import Tesseract from 'tesseract.js';
 import confetti from 'canvas-confetti';
-
-const GEMINI_API_KEY = 'AIzaSyAAzmTY0Eb0_Ytm7SIkCbysBJPf0bWIMWo';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // ── Types ──
 interface PaperQuestion {
@@ -134,19 +132,20 @@ export default function AnswerKeyManager() {
 
     const generateQuestions = async () => {
         if (!paperTopic.trim()) return;
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        if (!apiKey) return alert("Gemini API key is missing. Check your .env.local");
+
         setAiGenerating(true);
         try {
-            const prompt = `Generate ${selectedTemplate.questionCount} high-quality ${selectedTemplate.difficulty} difficulty university-level exam questions about: "${paperTopic}". 
-            Return ONLY a valid JSON array of objects with structure: [{"partLabel": "PART A", "questionText": "...", "marks": ${selectedTemplate.maxMarks / selectedTemplate.questionCount}, "difficulty": "easy|medium|hard", "topic": "specific topic"}, ...]. 
-            Include a mix of MCQs, short answer, and descriptive questions. Do NOT wrap in markdown.`;
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { responseMimeType: "application/json" } });
 
-            const res = await fetch(GEMINI_URL, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-            const data = await res.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!text) throw new Error("No response");
+            const prompt = `Generate ${selectedTemplate.questionCount} extremely detailed, high-quality, university-level ${selectedTemplate.difficulty} exam questions about: "${paperTopic}". 
+            Return ONLY a valid JSON array of objects with structure: [{"partLabel": "PART A", "questionText": "...", "marks": ${selectedTemplate.maxMarks / selectedTemplate.questionCount}, "difficulty": "easy|medium|hard", "topic": "specific topic", "sampleAnswer": "Detailed expected answer with key points and marking scheme"}]. 
+            Make questions very conceptual, highly detailed, and suitable for a rigorous exam. Include a mix of analytical, descriptive, and problem-solving questions.`;
+
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
 
             const parsed = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
             const newQs = parsed.map((q: any, i: number) => ({
@@ -155,6 +154,7 @@ export default function AnswerKeyManager() {
                 questionText: q.questionText,
                 marks: q.marks || Math.round(selectedTemplate.maxMarks / selectedTemplate.questionCount),
                 keywords: [],
+                sampleAnswer: q.sampleAnswer,
                 difficulty: q.difficulty || 'medium',
                 topic: q.topic || paperTopic
             }));
@@ -263,6 +263,19 @@ export default function AnswerKeyManager() {
                         </div>
                     </div>
                 `).join('')}
+            <div class="section" style="page-break-before: always;">
+                <div class="section-title" style="color: #059669;">Teacher's Answer Key & Marking Scheme</div>
+                ${questions.map((q, i) => `
+                    <div class="q-row" style="border-left-color: #059669;">
+                        <div class="q-number" style="color: #059669;">A${i + 1}</div>
+                        <div class="q-content">
+                            <div class="q-text" style="color: #374151; font-weight: 500;">${q.questionText}</div>
+                            <div class="q-text" style="color: #059669; padding-left: 10px; border-left: 2px solid #a7f3d0; margin-top: 10px;">
+                                ${q.sampleAnswer || 'Evaluate based on relevancy to the topic and analytical depth.'}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
             </div>
             <div class="footer">Best of luck! · Generated with VITGROWW Academic Toolkit</div>
             <script>window.print();</script></body></html>
@@ -298,25 +311,26 @@ export default function AnswerKeyManager() {
         const q = questions.find(q => q.id === gradingQuestionId);
         if (!q || !extractedText.trim() || !studentName.trim()) return alert('Select question, enter student name, and provide answer text.');
 
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        if (!apiKey) return alert("Gemini API key is missing. Check your .env.local");
+
         setAiGenerating(true);
         try {
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { responseMimeType: "application/json" } });
+
             const prompt = `Act as a strict university professor. Evaluate the following student answer.
             Question: "${q.questionText}" (Max Marks: ${q.marks})
             Model Answer / Keywords context: "${q.sampleAnswer || q.keywords.map(k => k.word).join(', ') || 'N/A'}"
             Student Answer: "${extractedText}"
             
-            Return ONLY valid JSON: {"score": <number between 0 and ${q.marks}>, "feedback": "<detailed feedback>", "confidence": <0-100>}
-            No markdown wrap.`;
+            Return ONLY valid JSON: {"score": <number between 0 and ${q.marks}>, "feedback": "<detailed constructive feedback>", "confidence": <0-100>}`;
 
-            const res = await fetch(GEMINI_URL, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-            const data = await res.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
             const parsed = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
 
-            const result: GradedAnswer = {
+            const evaluationResult: GradedAnswer = {
                 questionId: q.id,
                 studentName,
                 extractedText,
@@ -327,7 +341,7 @@ export default function AnswerKeyManager() {
                 confidence: parsed.confidence || 85
             };
 
-            setGradedResults(prev => [result, ...prev]);
+            setGradedResults(prev => [evaluationResult, ...prev]);
             setExtractedText('');
             setStudentName('');
             triggerConfetti();
@@ -374,18 +388,19 @@ export default function AnswerKeyManager() {
 
     const generatePrep = async () => {
         if (!prepCourse.trim()) return;
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        if (!apiKey) return alert("Gemini API key is missing. Check your .env.local");
+
         setAiGenerating(true);
         try {
-            const prompt = `Act as an exam prep AI. I am preparing for ${prepType} in ${prepCourse}.
-            Return ONLY valid JSON: {"topics": ["topic 1", "topic 2", "topic 3", "topic 4", "topic 5"], "questions": [{"q": "Question 1", "a": "Short answer 1"}, {"q": "Question 2", "a": "Short answer 2"}, {"q": "Question 3", "a": "Short answer 3"}]}
-            No markdown wrap.`;
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { responseMimeType: "application/json" } });
 
-            const res = await fetch(GEMINI_URL, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-            const data = await res.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            const prompt = `Act as an expert exam prep AI. I am preparing for ${prepType} in ${prepCourse}.
+            Return ONLY valid JSON: {"topics": ["topic 1", "topic 2", "topic 3", "topic 4", "topic 5"], "questions": [{"q": "Question 1", "a": "Short answer 1"}, {"q": "Question 2", "a": "Short answer 2"}, {"q": "Question 3", "a": "Short answer 3"}]}`;
+
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
             const parsed = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
             setPrepData(parsed);
 
@@ -636,7 +651,13 @@ export default function AnswerKeyManager() {
                                                             {i + 1}
                                                         </div>
                                                         <div className="flex-1">
-                                                            <p className="text-white/80 text-sm mb-2">{q.questionText}</p>
+                                                            <p className="text-white/80 text-sm mb-2 font-medium">{q.questionText}</p>
+                                                            {q.sampleAnswer && (
+                                                                <div className="mt-2 mb-3 p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-lg">
+                                                                    <p className="text-emerald-400/80 text-[10px] font-bold uppercase tracking-wider mb-1">Expected Answer / Marking Scheme:</p>
+                                                                    <p className="text-white/60 text-xs leading-relaxed">{q.sampleAnswer}</p>
+                                                                </div>
+                                                            )}
                                                             <div className="flex items-center gap-3 text-[11px]">
                                                                 <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-400 rounded">{q.marks} Marks</span>
                                                                 <span className={`px-2 py-0.5 rounded ${q.difficulty === 'easy' ? 'bg-green-500/15 text-green-400' : q.difficulty === 'medium' ? 'bg-amber-500/15 text-amber-400' : 'bg-rose-500/15 text-rose-400'}`}>

@@ -9,8 +9,6 @@ import {
 import confetti from 'canvas-confetti';
 import { currentUser } from '@/data/mockData';
 
-const API_KEY = 'AIzaSyC7pquxHgB_LOADYI1K7xhkvqjPnSiOnqM';
-
 interface VideoItem {
     id: string;
     title: string;
@@ -76,12 +74,24 @@ export default function LearningComponent() {
 
         setIsSearching(true);
         try {
-            const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&key=${API_KEY}&maxResults=20`);
+            const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+            if (!apiKey) {
+                console.error("YouTube API Key is missing. Check .env.local");
+                return;
+            }
+
+            const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&key=${apiKey}&maxResults=20`);
+
+            if (!searchRes.ok) {
+                console.error("YouTube API returned an error:", searchRes.status, await searchRes.text());
+                return;
+            }
+
             const searchData = await searchRes.json();
 
             if (searchData.items && searchData.items.length > 0) {
                 const videoIds = searchData.items.map((item: any) => item.id.videoId).join(',');
-                const videoRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet&id=${videoIds}&key=${API_KEY}`);
+                const videoRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics,snippet&id=${videoIds}&key=${apiKey}`);
                 const videoData = await videoRes.json();
 
                 const newVideos: VideoItem[] = videoData.items.map((item: any) => {

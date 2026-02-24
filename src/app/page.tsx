@@ -36,6 +36,13 @@ import AiRoadmap from '@/components/AiRoadmap';
 import CampusExplorer from '@/components/CampusExplorer';
 import VisualAlgorithms from '@/components/VisualAlgorithms';
 import { AnimatedAIChat } from '@/components/ui/animated-ai-chat';
+import FlashcardMaker from '@/components/FlashcardMaker';
+import ExamCountdown from '@/components/ExamCountdown';
+import PomodoroTimer from '@/components/PomodoroTimer';
+import GPACalculator from '@/components/GPACalculator';
+import SkillTracker from '@/components/SkillTracker';
+import PartnerMatch from '@/components/PartnerMatch';
+import TravelPool from '@/components/TravelPool';
 
 const BootScreen = dynamic(() => import('@/components/BootScreen'), { ssr: false });
 
@@ -140,6 +147,22 @@ export default function Home() {
         return <AnimatedAIChat />;
       case 'visual-algos':
         return <VisualAlgorithms />;
+      case 'ai-roadmap':
+        return <AiRoadmap />;
+      case 'flashcards':
+        return <FlashcardMaker />;
+      case 'exam-countdown':
+        return <ExamCountdown />;
+      case 'pomodoro':
+        return <PomodoroTimer />;
+      case 'gpa':
+        return <GPACalculator />;
+      case 'skills':
+        return <SkillTracker />;
+      case 'partner-match':
+        return <PartnerMatch />;
+      case 'travel-pool':
+        return <TravelPool />;
       default:
         return <DashboardOverview />;
     }
