@@ -35,6 +35,7 @@ import MrVighelp from '@/components/MrVighelp';
 import AiRoadmap from '@/components/AiRoadmap';
 import CampusExplorer from '@/components/CampusExplorer';
 import VisualAlgorithms from '@/components/VisualAlgorithms';
+import { AnimatedAIChat } from '@/components/ui/animated-ai-chat';
 
 const BootScreen = dynamic(() => import('@/components/BootScreen'), { ssr: false });
 
@@ -135,6 +136,8 @@ export default function Home() {
         return <AnswerKeyManager />;
       case 'mock-interview':
         return <AiMockInterview />;
+      case 'ai-chat':
+        return <AnimatedAIChat />;
       case 'visual-algos':
         return <VisualAlgorithms />;
       default:

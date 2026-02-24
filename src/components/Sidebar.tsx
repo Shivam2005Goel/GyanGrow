@@ -30,7 +30,8 @@ import {
     Vote,
     HandHeart,
     MapPin,
-    Binary
+    Binary,
+    Bot
 } from 'lucide-react';
 import { currentUser } from '@/data/mockData';
 
@@ -65,6 +66,7 @@ const navItems = [
     { id: 'group-study', label: 'Group Study', icon: HandHeart },
     { id: 'quick-poll', label: 'Quick Poll', icon: Vote },
     { id: 'mock-interview', label: 'Mock Interview', icon: Users },
+    { id: 'ai-chat', label: 'AI Chat', icon: Bot },
     { id: 'focus', label: 'Zen Focus', icon: Brain },
 ];
 
