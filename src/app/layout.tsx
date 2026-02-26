@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "VitGroww — Learn & Grow",
+  title: "GyanGrow — Learn & Grow",
   description:
     "The AI-native learning platform for students. Unified search, gamified learning, engagement intelligence, and smart briefings — all in one modern platform.",
   keywords: [

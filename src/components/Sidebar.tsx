@@ -40,7 +40,15 @@ import {
     HelpCircle,
     Heart,
     Users2,
-    Car
+    Car,
+    PiggyBank,
+    Gamepad,
+    BookOpen,
+    ShoppingBag,
+    Globe,
+    Trophy,
+    Map,
+    Building2
 } from 'lucide-react';
 import { currentUser } from '@/data/mockData';
 
@@ -51,6 +59,15 @@ interface SidebarProps {
 
 const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'dg-games', label: 'Games', icon: Gamepad },
+    { id: 'dg-learning', label: 'Learning', icon: BookOpen },
+    { id: 'dg-marketplace', label: 'Marketplace', icon: ShoppingBag },
+    { id: 'dg-roadmap', label: 'AI Roadmap', icon: Map },
+    { id: 'dg-zonal', label: 'Zonal Learning', icon: Globe },
+    { id: 'dg-skills', label: 'Skills', icon: Brain },
+    { id: 'dg-leaderboard', label: 'Leaderboard', icon: Trophy },
+    { id: 'dhangyan', label: 'Financial IQ', icon: PiggyBank },
+    { id: 'gov-schemes', label: 'Gov Schemes', icon: Building2 },
     { id: 'timetable', label: 'Timetable', icon: Calendar },
     { id: 'campus', label: 'Campus Explorer', icon: MapPin },
     { id: 'search', label: 'Oracle Search', icon: Search },
@@ -112,7 +129,7 @@ export default function Sidebar({ activeSection, onNavigate }: SidebarProps) {
                     {!collapsed && (
                         <div className="overflow-hidden">
                             <h1 className="text-lg font-bold tracking-wider bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                                VITGROWW
+                                GyanGrow
                             </h1>
                             <p className="text-[10px] text-white/30 tracking-widest -mt-0.5">LEARN & GROW OS</p>
                         </div>
@@ -126,24 +143,30 @@ export default function Sidebar({ activeSection, onNavigate }: SidebarProps) {
                     </p>
                     {navItems.map((item) => {
                         const isActive = activeSection === item.id;
+                        const isDhanGyanMenu = item.id.startsWith('dg-') || item.id === 'dhangyan';
+                        const baseColor = 'text-white/40';
+                        const hoverColor = isDhanGyanMenu ? 'hover:text-white/70 hover:bg-purple-500/10' : 'hover:text-white/70 hover:bg-white/[0.04]';
+                        const activeBg = isDhanGyanMenu ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/10 text-cyan-400';
+                        const activeShadow = isDhanGyanMenu ? 'shadow-[0_0_12px_rgba(168,85,247,0.6)]' : 'shadow-[0_0_12px_rgba(6,182,212,0.6)]';
+                        const activeBgLine = isDhanGyanMenu ? 'bg-purple-400' : 'bg-cyan-400';
+
                         return (
                             <button
                                 key={item.id}
                                 onClick={() => onNavigate(item.id)}
                                 className={`group relative flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all duration-200 ${isActive
-                                    ? 'bg-cyan-500/10 text-cyan-400'
-                                    : 'text-white/40 hover:text-white/70 hover:bg-white/[0.04]'
+                                    ? activeBg
+                                    : `${baseColor} ${hoverColor}`
                                     } ${collapsed ? 'justify-center' : ''}`}
                                 title={collapsed ? item.label : undefined}
                             >
                                 {/* Active indicator */}
                                 {isActive && (
-                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-cyan-400 rounded-r-full shadow-[0_0_12px_rgba(6,182,212,0.6)]" />
+                                    <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 ${activeBgLine} rounded-r-full ${activeShadow}`} />
                                 )}
                                 <item.icon
                                     size={20}
-                                    className={`flex-shrink-0 transition-all ${isActive ? 'drop-shadow-[0_0_6px_rgba(6,182,212,0.5)]' : 'group-hover:scale-110'
-                                        }`}
+                                    className={`flex-shrink-0 transition-all ${isActive ? `drop-shadow-[0_0_6px_rgba(${isDhanGyanMenu ? '168,85,247' : '6,182,212'},0.5)]` : 'group-hover:scale-110'}`}
                                 />
                                 {!collapsed && (
                                     <span className="text-sm font-medium truncate">{item.label}</span>

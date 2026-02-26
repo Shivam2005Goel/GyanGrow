@@ -344,7 +344,7 @@ export default function AttendanceTracker() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `vitgroww-attendance-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `gyangrow-attendance-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
         setShowExport(false);

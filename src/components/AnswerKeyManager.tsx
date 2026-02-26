@@ -277,7 +277,7 @@ export default function AnswerKeyManager() {
                     </div>
                 `).join('')}
             </div>
-            <div class="footer">Best of luck! · Generated with VITGROWW Academic Toolkit</div>
+            <div class="footer">Best of luck! · Generated with GyanGrow Academic Toolkit</div>
             <script>window.print();</script></body></html>
         `);
         printWindow.document.close();

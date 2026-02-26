@@ -32,6 +32,7 @@ import AIAssistant from '@/components/AIAssistant';
 import LearningHub from '@/components/LearningHub';
 import AiMockInterview from '@/components/AiMockInterview';
 import MrVighelp from '@/components/MrVighelp';
+import GovSchemes from '@/components/GovSchemes';
 import AiRoadmap from '@/components/AiRoadmap';
 import CampusExplorer from '@/components/CampusExplorer';
 import VisualAlgorithms from '@/components/VisualAlgorithms';
@@ -43,6 +44,8 @@ import GPACalculator from '@/components/GPACalculator';
 import SkillTracker from '@/components/SkillTracker';
 import PartnerMatch from '@/components/PartnerMatch';
 import TravelPool from '@/components/TravelPool';
+import DhanGyanSimulation from '@/components/DhanGyanSimulation';
+import DhanGyanIframe from '@/components/DhanGyanIframe';
 
 const BootScreen = dynamic(() => import('@/components/BootScreen'), { ssr: false });
 
@@ -67,6 +70,22 @@ export default function Home() {
     switch (activeSection) {
       case 'dashboard':
         return <DashboardOverview />;
+      case 'dg-games':
+        return <DhanGyanIframe route="/games" />;
+      case 'dg-learning':
+        return <DhanGyanIframe route="/learning" />;
+      case 'dg-marketplace':
+        return <DhanGyanIframe route="/marketplace" />;
+      case 'dg-roadmap':
+        return <DhanGyanIframe route="/roadmap" />;
+      case 'dg-zonal':
+        return <DhanGyanIframe route="/zones" />;
+      case 'dg-skills':
+        return <DhanGyanIframe route="/skills" />;
+      case 'dg-leaderboard':
+        return <DhanGyanIframe route="/" />;
+      case 'dhangyan':
+        return <DhanGyanSimulation />;
       case 'timetable':
         return <TimetableHelper />;
       case 'search':
@@ -89,7 +108,7 @@ export default function Home() {
               </div>
               <h3 className="text-lg font-bold text-white/80">Ayush Upadhyay</h3>
               <p className="text-sm text-white/40">BTech CSE AIML · 3rd Year</p>
-              <p className="text-xs text-white/25 mt-1">ayush.upadhyay@vitgroww.edu · STU-2023-0847</p>
+              <p className="text-xs text-white/25 mt-1">ayush.upadhyay@gyangrow.edu · STU-2023-0847</p>
               <div className="grid grid-cols-3 gap-4 mt-6">
                 <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                   <p className="text-2xl font-bold text-cyan-400">3.72</p>
@@ -127,6 +146,8 @@ export default function Home() {
         return <NoteShare />;
       case 'admin-automation':
         return <AdminAutomation />;
+      case 'gov-schemes':
+        return <GovSchemes />;
       case 'group-study':
         return <GroupStudy />;
       case 'quick-poll':
@@ -193,7 +214,7 @@ export default function Home() {
       {/* Main content area */}
       <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Primary content */}
-        <main className={`flex-1 overflow-y-auto ${activeSection === 'campus' ? 'p-0 relative' : 'p-6 lg:p-8'}`}>
+        <main className={`flex-1 overflow-y-auto ${activeSection === 'campus' || activeSection === 'gov-schemes' || activeSection.startsWith('dg-') ? 'p-0 relative h-full' : 'p-6 lg:p-8'}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}
@@ -201,7 +222,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className={`${activeSection === 'campus' ? 'w-full h-full' : 'max-w-5xl mx-auto'} animate-in`}
+              className={`${activeSection === 'campus' || activeSection === 'gov-schemes' || activeSection.startsWith('dg-') ? 'w-full h-full' : 'max-w-5xl mx-auto'} animate-in`}
             >
               {renderMainContent()}
             </motion.div>
