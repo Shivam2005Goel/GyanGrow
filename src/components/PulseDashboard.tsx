@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { userEngagement, weeklyHeatmap, heatmapLabels, currentUser } from '@/data/mockData';
 import { generateInsight } from '@/data/mockBackend';
-import Leaderboard from './Leaderboard';
+import DhanGyanLeaderboard from './DhanGyanLeaderboard';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -272,7 +272,7 @@ export default function PulseDashboard() {
 
             {/* Global Leaderboard Section */}
             <div className="mt-6 h-[400px]">
-                <Leaderboard />
+                <DhanGyanLeaderboard />
             </div>
         </div>
     );

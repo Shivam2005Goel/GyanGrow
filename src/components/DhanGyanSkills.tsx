@@ -1,218 +1,354 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowLeft, Brain, Award, Star, Zap, TrendingUp, Target } from 'lucide-react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    ArrowLeft, Brain, Search, Trophy, Calendar, Filter, Hash, Activity,
+    BarChart3, TrendingDown, FileText, Target, Wallet, Calculator,
+    Shield, Clock, Coins, Globe, CreditCard, Building2, Landmark, Cpu,
+    PiggyBank, BookOpen, Lock, Award, CheckCircle, Zap, Flame, ChevronDown, CheckCircle2
+} from 'lucide-react';
 
-// Glass Card
-const GlassCard = ({ children, className = '', style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => {
-    return (
-        <div className={`bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl p-6 shadow-lg ${className}`} style={style}>
-            {children}
-        </div>
-    );
+const iconMap: any = {
+    BarChart3, TrendingDown, FileText, Target, Wallet,
+    Calculator, Shield, Clock, Coins, Globe, CreditCard,
+    Building2, Landmark, Cpu, PiggyBank, BookOpen
 };
 
-// Skills Data
+const stats = {
+    weeklyProgress: 7,
+    weeklyGoal: 10,
+    totalSkills: 15,
+    unlocked: 11,
+    mastered: 0,
+    dayStreak: 12,
+    totalXp: 2570,
+    level: 5
+};
+
+const categoriesList = [
+    { key: 'all', name: 'All Skills', icon: Hash },
+    { key: 'investing', name: 'Investing & Trading', icon: Globe },
+    { key: 'personal', name: 'Personal Finance', icon: PiggyBank },
+    { key: 'fintech', name: 'FinTech & Digital', icon: Cpu },
+    { key: 'business', name: 'Business Finance', icon: Building2 },
+];
+
+const recentActivity = [
+    { type: 'module_complete', text: 'Completed Emergency Fund...', time: '2 hours ago', icon: CheckCircle2, colorClass: 'text-green-400', bgClass: 'bg-green-500/20' },
+    { type: 'xp', text: 'Earned 100 XP', time: '5 hours ago', icon: Zap, colorClass: 'text-purple-400', bgClass: 'bg-purple-500/20' },
+    { type: 'badge', text: 'Earned Savings Star badge', time: '1 day ago', icon: Award, colorClass: 'text-yellow-400', bgClass: 'bg-yellow-500/20' },
+    { type: 'streak', text: '12 day streak!', time: '1 day ago', icon: Flame, colorClass: 'text-orange-400', bgClass: 'bg-orange-500/20' },
+];
+
 const skills = [
-    { id: 1, name: 'Budgeting', level: 8, xp: 2400, maxXp: 3000, icon: '💰', color: 'from-green-500 to-emerald-600', badges: ['Novice', 'Intermediate'] },
-    { id: 2, name: 'Saving', level: 6, xp: 1800, maxXp: 2500, icon: '💎', color: 'from-blue-500 to-cyan-600', badges: ['Novice'] },
-    { id: 3, name: 'Investing', level: 4, xp: 800, maxXp: 2000, icon: '📈', color: 'from-purple-500 to-pink-600', badges: [] },
-    { id: 4, name: 'Tax Planning', level: 3, xp: 450, maxXp: 1500, icon: '📋', color: 'from-orange-500 to-red-600', badges: [] },
-    { id: 5, name: 'Debt Management', level: 5, xp: 1200, maxXp: 2000, icon: '⚖️', color: 'from-yellow-500 to-amber-600', badges: ['Novice'] },
-    { id: 6, name: 'Financial Planning', level: 2, xp: 200, maxXp: 1000, icon: '🎯', color: 'from-teal-500 to-green-600', badges: [] }
+    {
+        id: 1, name: 'Stock Market Basics', description: 'Learn fundamental concepts of stock trading and market analysis',
+        locked: false, icon: 'BarChart3', iconBg: 'bg-green-500',
+        level: 1, maxLevel: 5, xp: 450, maxXp: 500, progColor: 'from-pink-500 to-pink-500', moduleColor: 'from-cyan-400 to-cyan-500',
+        completedModules: 7, totalModules: 8, estimatedTime: '2 weeks'
+    },
+    {
+        id: 2, name: 'Technical Analysis', description: 'Master chart patterns, indicators, and price action strategies',
+        locked: false, icon: 'TrendingDown', iconBg: 'bg-green-500',
+        level: 2, maxLevel: 5, xp: 320, maxXp: 1000, progColor: 'from-pink-500 to-pink-500', moduleColor: 'from-cyan-400 to-cyan-500',
+        completedModules: 3, totalModules: 12, estimatedTime: '4 weeks'
+    },
+    {
+        id: 3, name: 'Fundamental Analysis', description: 'Analyze company financials and economic indicators',
+        locked: false, icon: 'FileText', iconBg: 'bg-green-500',
+        level: 0, maxLevel: 5, xp: 0, maxXp: 500, progColor: 'bg-white/10', moduleColor: 'bg-white/10',
+        completedModules: 0, totalModules: 10, estimatedTime: '3 weeks'
+    },
+    {
+        id: 4, name: 'Options Trading', description: 'Advanced strategies using options contracts',
+        locked: true, icon: 'Lock', iconBg: 'bg-gray-400',
+        level: 0, maxLevel: 5, xp: 0, maxXp: 500, progColor: 'bg-white/10', moduleColor: 'bg-white/10',
+        completedModules: 0, totalModules: 15, estimatedTime: '6 weeks'
+    },
+    {
+        id: 5, name: 'Portfolio Management', description: 'Build and manage diversified investment portfolios',
+        locked: true, icon: 'Lock', iconBg: 'bg-gray-400',
+        level: 0, maxLevel: 5, xp: 0, maxXp: 500, progColor: 'bg-white/10', moduleColor: 'bg-white/10',
+        completedModules: 0, totalModules: 12, estimatedTime: '4 weeks'
+    },
+    {
+        id: 6, name: 'Budgeting Mastery', description: 'Create and maintain effective personal budgets',
+        locked: false, icon: 'Calculator', iconBg: 'bg-blue-500',
+        level: 3, maxLevel: 5, xp: 1200, maxXp: 1500, progColor: 'from-pink-500 to-pink-500', moduleColor: 'from-cyan-400 to-cyan-500',
+        completedModules: 6, totalModules: 8, estimatedTime: '2 weeks'
+    }
 ];
 
-// Achievements Data
-const achievements = [
-    { id: 1, name: 'First Steps', description: 'Complete your first lesson', icon: '🌟', earned: true },
-    { id: 2, name: 'Quick Learner', description: 'Complete 10 lessons', icon: '⚡', earned: true },
-    { id: 3, name: 'Money Master', description: 'Reach level 10 in Budgeting', icon: '👑', earned: false },
-    { id: 4, name: 'Week Warrior', description: '7-day learning streak', icon: '🔥', earned: true },
-    { id: 5, name: 'Investment Guru', description: 'Complete all investing courses', icon: '🏆', earned: false },
-    { id: 6, name: 'Community Star', description: 'Help 100 community members', icon: '⭐', earned: false }
-];
+export default function DhanGyanSkills({ onNavigate }: { onNavigate?: (section: string) => void }) {
+    const router = useRouter();
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
 
-// Animated Background
-const AnimatedBackground = () => {
-    return (
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-600 via-pink-500 to-red-500"></div>
-            {[...Array(15)].map((_, i) => (
-                <div
-                    key={i}
-                    className="absolute rounded-full bg-white opacity-10 animate-float"
-                    style={{
-                        width: `${Math.random() * 80 + 40}px`,
-                        height: `${Math.random() * 80 + 40}px`,
-                        top: `${Math.random() * 100}%`,
-                        left: `${Math.random() * 100}%`,
-                        animationDuration: `${Math.random() * 10 + 10}s`,
-                        animationDelay: `${Math.random() * 5}s`,
-                    }}
-                ></div>
-            ))}
-        </div>
-    );
-};
-
-const DhanGyanSkills = ({ onNavigate }: { onNavigate?: (section: string) => void }) => {
-    const [activeTab, setActiveTab] = useState('skills');
+    const handleBack = () => {
+        if (onNavigate) {
+            onNavigate('dhangyan');
+        } else {
+            router.back();
+        }
+    };
 
     return (
-        <div className="min-h-screen text-white relative" style={{ background: 'linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%)' }}>
-            <AnimatedBackground />
-
-            {/* Header */}
-            <header className="p-4 md:p-6 flex items-center justify-between">
-                <button
-                    onClick={() => onNavigate?.('dhangyan')}
-                    className="flex items-center gap-2 text-white hover:text-yellow-300 transition-colors"
-                >
-                    <ArrowLeft size={24} />
-                    <span>Back</span>
-                </button>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <Brain className="text-yellow-400" />
-                    Skills & Achievements
-                </h1>
-                <div className="w-20"></div>
-            </header>
-
-            <main className="p-4 md:p-8">
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl md:text-6xl font-bold text-yellow-400 mb-4">Your Skills</h1>
-                    <p className="text-xl text-gray-200">Track your financial literacy progress</p>
+        <div className="min-h-screen bg-[#0d1117] text-white flex flex-col font-sans overflow-hidden">
+            {/* Top Navigation Bar */}
+            <div className="h-[72px] border-b border-white/10 flex items-center justify-between px-6 bg-[#11151c] z-50 shrink-0">
+                <div className="flex items-center gap-6">
+                    <button
+                        onClick={handleBack}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 text-sm font-medium"
+                    >
+                        <ArrowLeft size={16} />
+                        Back
+                    </button>
+                    <div className="flex items-center gap-2">
+                        <Brain className="text-purple-400" size={24} />
+                        <h1 className="text-xl font-bold tracking-tight">Skills Mastery</h1>
+                    </div>
                 </div>
 
-                {/* Tabs */}
-                <div className="flex justify-center gap-4 mb-8">
-                    <button
-                        onClick={() => setActiveTab('skills')}
-                        className={`px-6 py-2 rounded-full font-semibold transition-all ${activeTab === 'skills'
-                                ? 'bg-yellow-400 text-blue-600'
-                                : 'bg-white bg-opacity-10 hover:bg-opacity-20'
-                            }`}
-                    >
-                        Skills
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('achievements')}
-                        className={`px-6 py-2 rounded-full font-semibold transition-all ${activeTab === 'achievements'
-                                ? 'bg-yellow-400 text-blue-600'
-                                : 'bg-white bg-opacity-10 hover:bg-opacity-20'
-                            }`}
-                    >
-                        Achievements
-                    </button>
+                <div className="flex items-center gap-6">
+                    {/* Search */}
+                    <div className="flex items-center bg-[#1b2230] border border-white/5 rounded-xl px-4 py-2 w-72 focus-within:ring-1 ring-purple-500 transition-all">
+                        <Search size={16} className="text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search skills..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="bg-transparent border-none outline-none text-sm px-3 w-full text-white placeholder-gray-500"
+                        />
+                    </div>
+
+                    {/* XP Bubble */}
+                    <div className="flex items-center gap-3">
+                        <div className="text-right hidden sm:block">
+                            <div className="text-sm font-bold text-gray-200">{stats.totalXp.toLocaleString()} XP</div>
+                            <div className="text-xs text-gray-400">Level {stats.level}</div>
+                        </div>
+                        <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                            <Trophy size={18} className="text-white" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex overflow-hidden">
+
+                {/* Left Sidebar Overlay */}
+                <div className="w-[300px] h-full bg-[#11151c]/95 border-r border-white/10 flex flex-col p-6 shadow-xl shrink-0">
+
+                    {/* Weekly Goal */}
+                    <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-5 mb-6">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-bold flex items-center gap-2 text-sm text-gray-200">
+                                <Calendar size={16} className="text-purple-400" />
+                                Weekly Goal
+                            </h3>
+                            <span className="text-xs text-gray-400">{stats.weeklyProgress}/{stats.weeklyGoal} hours</span>
+                        </div>
+                        <div className="h-2.5 bg-white/10 rounded-full overflow-hidden mb-2">
+                            <div
+                                className="h-full bg-orange-500 rounded-full"
+                                style={{ width: `${(stats.weeklyProgress / stats.weeklyGoal) * 100}%` }}
+                            />
+                        </div>
+                        <p className="text-[11px] text-gray-400">
+                            {stats.weeklyGoal - stats.weeklyProgress} hours remaining this week
+                        </p>
+                    </div>
+
+                    {/* Categories */}
+                    <div className="mb-6">
+                        <h3 className="font-bold mb-3 flex items-center gap-2 text-sm text-gray-200 px-2">
+                            <Filter size={16} className="text-gray-400" />
+                            Categories
+                        </h3>
+                        <div className="space-y-1">
+                            {categoriesList.map((cat) => {
+                                const Icon = cat.icon;
+                                const isActive = selectedCategory === cat.key;
+                                return (
+                                    <button
+                                        key={cat.key}
+                                        onClick={() => setSelectedCategory(cat.key)}
+                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all text-sm font-medium ${isActive
+                                                ? 'bg-purple-600/30 text-purple-300 border border-purple-500/20'
+                                                : 'text-gray-400 hover:bg-white/5'
+                                            }`}
+                                    >
+                                        <Icon size={16} />
+                                        {cat.name}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Recent Activity */}
+                    <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-5 flex-1 min-h-0 override-overflow overflow-y-auto">
+                        <h3 className="font-bold mb-4 flex items-center gap-2 text-sm text-gray-200">
+                            <Activity size={16} className="text-blue-400" />
+                            Recent Activity
+                        </h3>
+                        <div className="space-y-4">
+                            {recentActivity.map((activity, idx) => {
+                                const Icon = activity.icon;
+                                return (
+                                    <div key={idx} className="flex items-start gap-3">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${activity.bgClass} ${activity.colorClass}`}>
+                                            <Icon size={14} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-semibold text-gray-200 line-clamp-1 break-all pr-2 relative top-[2px]">{activity.text}</p>
+                                            <p className="text-[10px] text-gray-500 mt-1">{activity.time}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
 
-                {activeTab === 'skills' ? (
-                    /* Skills Grid */
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                        {skills.map((skill, index) => (
-                            <GlassCard
-                                key={skill.id}
-                                className="hover:bg-opacity-20 transition-all duration-300 transform hover:scale-105"
-                                style={{ animationDelay: `${index * 0.1}s` }}
-                            >
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${skill.color} flex items-center justify-center text-3xl`}>
-                                        {skill.icon}
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold">{skill.name}</h3>
-                                        <p className="text-yellow-400">Level {skill.level}</p>
-                                    </div>
-                                </div>
+                {/* Main Content Panel */}
+                <div className="flex-1 p-6 overflow-y-auto custom-scrollbar bg-[#0f1219]">
 
-                                {/* XP Progress */}
-                                <div className="mb-4">
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span>{skill.xp} XP</span>
-                                        <span>{skill.maxXp} XP</span>
-                                    </div>
-                                    <div className="w-full h-3 bg-white bg-opacity-20 rounded-full">
-                                        <div
-                                            className={`h-full bg-gradient-to-r ${skill.color} rounded-full`}
-                                            style={{ width: `${(skill.xp / skill.maxXp) * 100}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
+                    {/* KPI Widget Row */}
+                    <div className="grid grid-cols-4 gap-4 mb-6">
+                        <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center">
+                            <Target size={20} className="text-blue-400 mb-2" />
+                            <div className="text-2xl font-bold text-gray-100">{stats.totalSkills}</div>
+                            <div className="text-[11px] text-gray-400 mt-1">Total Skills</div>
+                        </div>
+                        <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center">
+                            <Lock className="text-green-400 mb-2" size={20} />
+                            <div className="text-2xl font-bold text-gray-100">{stats.unlocked}</div>
+                            <div className="text-[11px] text-gray-400 mt-1">Unlocked</div>
+                        </div>
+                        <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center">
+                            <CheckCircle size={20} className="text-purple-400 mb-2" />
+                            <div className="text-2xl font-bold text-gray-100">{stats.mastered}</div>
+                            <div className="text-[11px] text-gray-400 mt-1">Mastered</div>
+                        </div>
+                        <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center">
+                            <Flame size={20} className="text-orange-400 mb-2" />
+                            <div className="text-2xl font-bold text-gray-100">{stats.dayStreak}</div>
+                            <div className="text-[11px] text-gray-400 mt-1">Day Streak</div>
+                        </div>
+                    </div>
 
-                                {/* Badges */}
-                                <div className="flex flex-wrap gap-2">
-                                    {skill.badges.map((badge, i) => (
-                                        <span key={i} className="bg-yellow-400 bg-opacity-20 text-yellow-400 px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                                            <Award size={12} />
-                                            {badge}
-                                        </span>
-                                    ))}
-                                    {skill.badges.length === 0 && (
-                                        <span className="text-gray-400 text-sm">No badges yet</span>
+                    {/* Filters Row */}
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="relative">
+                            <select className="appearance-none bg-[#1b2230] border border-white/5 text-sm font-medium text-gray-200 py-2 pl-4 pr-10 rounded-xl outline-none hover:bg-[#232b3c] cursor-pointer">
+                                <option>All Skills</option>
+                                <option>Unlocked</option>
+                                <option>Locked</option>
+                            </select>
+                            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        </div>
+                        <div className="px-3 py-1.5 bg-purple-600/20 text-purple-400 text-xs font-bold rounded-full border border-purple-500/20">
+                            15 skills
+                        </div>
+                    </div>
+
+                    {/* Skills Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 pb-10">
+                        {skills.map((skill) => {
+                            const IconComp = iconMap[skill.icon] || BookOpen;
+                            const isLocked = skill.locked;
+                            const modProgPercentage = skill.totalModules ? (skill.completedModules / skill.totalModules) * 100 : 0;
+                            const xpPercentage = skill.maxXp ? (skill.xp / skill.maxXp) * 100 : 0;
+
+                            return (
+                                <div key={skill.id} className={`bg-[#1b2230] border border-white/5 rounded-2xl p-5 relative overflow-hidden group cursor-pointer hover:border-white/10 transition-colors ${isLocked ? 'opacity-80' : ''}`}>
+                                    {isLocked && <div className="absolute inset-0 bg-black/10 z-10 pointers-events-none"></div>}
+
+                                    {/* Top Icon and Dots Row */}
+                                    <div className="flex justify-between items-start mb-4 relative z-20">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isLocked ? 'bg-gray-600' : skill.iconBg}`}>
+                                            <IconComp size={18} className="text-white" />
+                                        </div>
+
+                                        <div className="flex items-center gap-1 mt-1">
+                                            {[...Array(skill.maxLevel)].map((_, i) => (
+                                                <div
+                                                    key={i}
+                                                    className={`w-1.5 h-1.5 rounded-full ${i < skill.level
+                                                            ? 'bg-yellow-400'
+                                                            : 'bg-white/20'
+                                                        }`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Text Context */}
+                                    <div className="relative z-20 mb-4 min-h-[40px]">
+                                        <h3 className={`font-bold text-base mb-1 ${isLocked ? 'text-gray-400' : 'text-gray-100 group-hover:text-purple-300 transition-colors'}`}>{skill.name}</h3>
+                                        <p className="text-xs text-gray-500 line-clamp-2">{skill.description}</p>
+                                    </div>
+
+                                    {/* Progress Bars (only if unlocked) */}
+                                    {!isLocked && (
+                                        <div className="space-y-4 mb-4">
+                                            {/* Modules Progress */}
+                                            <div>
+                                                <div className="flex justify-between text-[11px] mb-1.5">
+                                                    <span className="text-gray-500">{skill.completedModules}/{skill.totalModules} Modules</span>
+                                                    <span className="font-bold text-cyan-400">{Math.round(modProgPercentage)}%</span>
+                                                </div>
+                                                <div className="h-[3px] bg-white/10 rounded-full overflow-hidden">
+                                                    <div className={`h-full bg-gradient-to-r ${skill.moduleColor} rounded-full`} style={{ width: `${modProgPercentage}%` }}></div>
+                                                </div>
+                                            </div>
+
+                                            {/* XP Progress */}
+                                            <div>
+                                                <div className="flex justify-between text-[11px] mb-1.5">
+                                                    <span className="text-gray-500">Level {skill.level}</span>
+                                                    <span className="font-bold text-pink-400">{skill.xp}/{skill.maxXp} XP</span>
+                                                </div>
+                                                <div className="h-[3px] bg-white/10 rounded-full overflow-hidden">
+                                                    <div className={`h-full bg-gradient-to-r ${skill.progColor} rounded-full`} style={{ width: `${xpPercentage}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     )}
-                                </div>
-                            </GlassCard>
-                        ))}
-                    </div>
-                ) : (
-                    /* Achievements Grid */
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                        {achievements.map((achievement, index) => (
-                            <GlassCard
-                                key={achievement.id}
-                                className={`text-center ${achievement.earned ? '' : 'opacity-50'}`}
-                                style={{ animationDelay: `${index * 0.1}s` }}
-                            >
-                                <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center text-4xl mb-4 ${achievement.earned
-                                        ? 'bg-gradient-to-br from-yellow-400 to-orange-500'
-                                        : 'bg-white bg-opacity-10'
-                                    }`}>
-                                    {achievement.icon}
-                                </div>
-                                <h3 className="text-xl font-bold mb-2">{achievement.name}</h3>
-                                <p className="text-gray-200 text-sm mb-4">{achievement.description}</p>
-                                {achievement.earned ? (
-                                    <span className="bg-green-500 bg-opacity-30 text-green-400 px-4 py-1 rounded-full text-sm">
-                                        ✓ Earned
-                                    </span>
-                                ) : (
-                                    <span className="bg-gray-500 bg-opacity-30 text-gray-400 px-4 py-1 rounded-full text-sm">
-                                        🔒 Locked
-                                    </span>
-                                )}
-                            </GlassCard>
-                        ))}
-                    </div>
-                )}
 
-                {/* Stats Summary */}
-                <GlassCard className="mt-12 max-w-4xl mx-auto">
-                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                        <TrendingUp className="text-yellow-400" />
-                        Your Progress
-                    </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                        <div>
-                            <div className="text-3xl font-bold text-purple-400">6</div>
-                            <div className="text-gray-300">Skills</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-yellow-400">33</div>
-                            <div className="text-gray-300">Total Level</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-green-400">6,850</div>
-                            <div className="text-gray-300">Total XP</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-blue-400">3</div>
-                            <div className="text-gray-300">Achievements</div>
-                        </div>
+                                    {/* Locked placeholder space */}
+                                    {isLocked && <div className="h-[80px]"></div>}
+
+                                    {/* Bottom Info line */}
+                                    <div className="flex items-center gap-4 text-[11px] text-gray-500 border-t border-white/5 pt-3 mt-auto relative z-20">
+                                        <div className="flex items-center gap-1.5">
+                                            <BookOpen size={12} />
+                                            <span>{skill.totalModules} modules</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <Clock size={12} />
+                                            <span>{skill.estimatedTime}</span>
+                                        </div>
+
+                                        {!isLocked && skill.level > 0 && (
+                                            <div className="ml-auto text-yellow-400">
+                                                <Award size={14} />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
-                </GlassCard>
-            </main>
+
+                </div>
+            </div>
         </div>
     );
-};
-
-export default DhanGyanSkills;
+}

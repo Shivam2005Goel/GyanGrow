@@ -9,8 +9,6 @@ import SearchBar from '@/components/SearchBar';
 import ProcessGPS from '@/components/ProcessGPS';
 import PulseDashboard from '@/components/PulseDashboard';
 import SmartBriefing from '@/components/SmartBriefing';
-import LearningComponent from '@/components/LearningComponent';
-import CodeGames from '@/components/CodeGames';
 import FocusMode from '@/components/FocusMode';
 import FileShare from '@/components/FileShare';
 import OracleSearch from '@/components/OracleSearch';
@@ -29,7 +27,6 @@ import StudyBuddy from '@/components/StudyBuddy';
 import BudgetTracker from '@/components/BudgetTracker';
 import AttendanceTracker from '@/components/AttendanceTracker';
 import AIAssistant from '@/components/AIAssistant';
-import LearningHub from '@/components/LearningHub';
 import AiMockInterview from '@/components/AiMockInterview';
 import MrVighelp from '@/components/MrVighelp';
 import GovSchemes from '@/components/GovSchemes';
@@ -41,17 +38,13 @@ import FlashcardMaker from '@/components/FlashcardMaker';
 import ExamCountdown from '@/components/ExamCountdown';
 import PomodoroTimer from '@/components/PomodoroTimer';
 import GPACalculator from '@/components/GPACalculator';
-import SkillTracker from '@/components/SkillTracker';
 import PartnerMatch from '@/components/PartnerMatch';
 import TravelPool from '@/components/TravelPool';
-import DhanGyanSimulation from '@/components/DhanGyanSimulation';
-import DhanGyanIframe from '@/components/DhanGyanIframe';
 import ARVRFeatures from '@/components/ARVRFeatures';
 import DhanGyanHome from '@/components/DhanGyanHome';
 import DhanGyanGames from '@/components/DhanGyanGames';
 import DhanGyanLearning from '@/components/DhanGyanLearning';
 import DhanGyanMarketplace from '@/components/DhanGyanMarketplace';
-import DhanGyanRoadmap from '@/components/DhanGyanRoadmap';
 import DhanGyanZones from '@/components/DhanGyanZones';
 import DhanGyanSkills from '@/components/DhanGyanSkills';
 import DhanGyanLeaderboard from '@/components/DhanGyanLeaderboard';
@@ -93,7 +86,7 @@ export default function Home() {
       case 'dg-marketplace':
         return <DhanGyanMarketplace />;
       case 'dg-roadmap':
-        return <DhanGyanRoadmap />;
+        return <AiRoadmap />;
       case 'dg-zonal':
         return <DhanGyanZones />;
       case 'dg-skills':
@@ -142,8 +135,6 @@ export default function Home() {
             </div>
           </div>
         );
-      case 'learning':
-        return <LearningComponent />;
       case 'fileshare':
         return <FileShare />;
       case 'study-materials':
@@ -152,8 +143,6 @@ export default function Home() {
         return <CareerHub />;
       case 'lost-found':
         return <LostAndFound />;
-      case 'code-games':
-        return <CodeGames />;
       case 'clubs-events':
         return <ClubsEvents />;
       case 'roommate':
@@ -194,8 +183,6 @@ export default function Home() {
         return <PomodoroTimer />;
       case 'gpa':
         return <GPACalculator />;
-      case 'skills':
-        return <SkillTracker />;
       case 'partner-match':
         return <PartnerMatch />;
       case 'travel-pool':

@@ -1,175 +1,185 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowLeft, Globe, MapPin, Users, BookOpen, Award } from 'lucide-react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+    ArrowLeft, Globe, Map as MapIcon, List, Search,
+    Flame, ChevronDown, Navigation, Users, BookOpen, Target,
+    MapPin, Plus, Minus
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 
-// Glass Card
-const GlassCard = ({ children, className = '', style, onClick }: { children: React.ReactNode; className?: string; style?: React.CSSProperties; onClick?: () => void }) => {
-    return (
-        <div className={`bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl p-6 shadow-lg ${className}`} style={style}>
-            {children}
-        </div>
-    );
-};
+import dynamic from 'next/dynamic';
 
-// Zone Data
+const ZonalMap = dynamic(() => import('./ZonalMap'), {
+    ssr: false,
+    loading: () => <div className="absolute inset-0 flex items-center justify-center bg-[#0a0d13] z-10 text-white/50">Loading Map...</div>
+});
+
+// Mock Data for the Map Points
 const zones = [
-    { id: 'north', name: 'North Zone', description: 'Delhi, Punjab, Haryana, UP, JK', icon: '🗼', learners: 12500, courses: 45, color: 'from-orange-500 to-red-600' },
-    { id: 'south', name: 'South Zone', description: 'Tamil Nadu, Karnataka, Kerala, AP, Telangana', icon: '🌴', learners: 15200, courses: 52, color: 'from-green-500 to-emerald-600' },
-    { id: 'east', name: 'East Zone', description: 'West Bengal, Odisha, Bihar, Jharkhand', icon: '🌊', learners: 9800, courses: 38, color: 'from-blue-500 to-cyan-600' },
-    { id: 'west', name: 'West Zone', description: 'Maharashtra, Gujarat, Rajasthan', icon: '🏜️', learners: 11400, courses: 48, color: 'from-yellow-500 to-orange-600' },
-    { id: 'central', name: 'Central Zone', description: 'MP, Chhattisgarh, Uttarakhand', icon: '🏔️', learners: 7200, courses: 35, color: 'from-purple-500 to-pink-600' },
-    { id: 'northeast', name: 'Northeast Zone', description: 'Assam, NE States, Sikkim', icon: '🌸', learners: 5400, courses: 28, color: 'from-teal-500 to-green-600' }
+    { id: '1', name: 'New Delhi', top: '25%', left: '45%', color: 'purple', shadow: 'rgba(168, 85, 247, 0.4)' },
+    { id: '2', name: 'Jaipur', top: '32%', left: '42%', color: 'pink', shadow: 'rgba(236, 72, 153, 0.4)' },
+    { id: '3', name: 'Kanpur', top: '32%', left: '55%', color: 'yellow', shadow: 'rgba(234, 179, 8, 0.4)' },
+    { id: '4', name: 'Kolkata', top: '48%', left: '72%', color: 'teal', shadow: 'rgba(20, 184, 166, 0.4)' },
+    { id: '5', name: 'Ahmedabad', top: '45%', left: '33%', color: 'pink', shadow: 'rgba(236, 72, 153, 0.4)' },
+    { id: '6', name: 'Bhopal', top: '47%', left: '45%', color: 'red', shadow: 'rgba(239, 68, 68, 0.4)' },
+    { id: '7', name: 'Mumbai', top: '60%', left: '35%', color: 'red', shadow: 'rgba(239, 68, 68, 0.4)' },
+    { id: '8', name: 'Pune', top: '63%', left: '38%', color: 'yellow', shadow: 'rgba(234, 179, 8, 0.4)' },
+    { id: '9', name: 'Hyderabad', top: '65%', left: '48%', color: 'teal', shadow: 'rgba(20, 184, 166, 0.4)' },
+    { id: '10', name: 'Bangalore', top: '78%', left: '45%', color: 'blue', shadow: 'rgba(59, 130, 246, 0.4)' },
+    { id: '11', name: 'Chennai', top: '78%', left: '53%', color: 'yellow', shadow: 'rgba(234, 179, 8, 0.4)' },
+    { id: '12', name: 'Madurai', top: '88%', left: '44%', color: 'teal', shadow: 'rgba(20, 184, 166, 0.4)' },
 ];
 
-// Animated Background
-const AnimatedBackground = () => {
-    return (
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-500"></div>
-            {[...Array(15)].map((_, i) => (
-                <div
-                    key={i}
-                    className="absolute rounded-full bg-white opacity-10 animate-float"
-                    style={{
-                        width: `${Math.random() * 80 + 40}px`,
-                        height: `${Math.random() * 80 + 40}px`,
-                        top: `${Math.random() * 100}%`,
-                        left: `${Math.random() * 100}%`,
-                        animationDuration: `${Math.random() * 10 + 10}s`,
-                        animationDelay: `${Math.random() * 5}s`,
-                    }}
-                ></div>
-            ))}
-        </div>
-    );
-};
+export default function DhanGyanZones() {
+    const router = useRouter();
 
-const DhanGyanZones = ({ onNavigate }: { onNavigate?: (section: string) => void }) => {
-    const [selectedZone, setSelectedZone] = useState<string | null>(null);
+
 
     return (
-        <div className="min-h-screen text-white relative" style={{ background: 'linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%)' }}>
-            <AnimatedBackground />
+        <div className="min-h-screen bg-[#0d1117] text-white flex flex-col font-sans overflow-hidden">
 
-            {/* Header */}
-            <header className="p-4 md:p-6 flex items-center justify-between">
-                <button
-                    onClick={() => onNavigate?.('dhangyan')}
-                    className="flex items-center gap-2 text-white hover:text-yellow-300 transition-colors"
-                >
-                    <ArrowLeft size={24} />
-                    <span>Back</span>
-                </button>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <Globe className="text-yellow-400" />
-                    Zonal Learning
-                </h1>
-                <div className="w-20"></div>
-            </header>
-
-            <main className="p-4 md:p-8">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-6xl font-bold text-yellow-400 mb-4">Learn by Region</h1>
-                    <p className="text-xl text-gray-200">Region-specific financial literacy content for India</p>
+            {/* Top Navigation Bar */}
+            <div className="h-[72px] border-b border-white/10 flex items-center justify-between px-6 bg-[#11151c] z-50 shrink-0">
+                <div className="flex items-center gap-6">
+                    <button
+                        onClick={() => router.back()}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 text-sm font-medium"
+                    >
+                        <ArrowLeft size={16} />
+                        Back
+                    </button>
+                    <div className="flex items-center gap-2">
+                        <Globe className="text-purple-400" size={24} />
+                        <h1 className="text-xl font-bold tracking-tight">Zonal Learning</h1>
+                    </div>
                 </div>
 
-                {/* Stats */}
-                <GlassCard className="mb-12 max-w-4xl mx-auto">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                        <div>
-                            <div className="text-3xl font-bold text-yellow-400">6</div>
-                            <div className="text-gray-300">Zones</div>
+                <div className="flex items-center gap-3">
+                    {/* Toggle */}
+                    <div className="flex p-1 rounded-xl bg-[#1b2230] border border-white/5">
+                        <button className="flex items-center gap-2 px-4 py-1.5 bg-purple-600 rounded-lg text-sm font-bold shadow-sm">
+                            <MapIcon size={16} /> Map
+                        </button>
+                        <button className="flex items-center gap-2 px-4 py-1.5 text-gray-400 hover:text-white rounded-lg text-sm font-medium transition-colors">
+                            <List size={16} /> List
+                        </button>
+                    </div>
+
+                    {/* Search */}
+                    <div className="flex items-center bg-[#1b2230] border border-white/5 rounded-xl px-4 py-2 w-64 focus-within:ring-1 ring-purple-500 transition-all">
+                        <Search size={16} className="text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search zones..."
+                            className="bg-transparent border-none outline-none text-sm px-3 w-full text-white placeholder-gray-500"
+                        />
+                    </div>
+
+                    {/* Fire Icon */}
+                    <button className="p-2 rounded-xl bg-purple-900/40 text-purple-400 border border-purple-500/20 hover:bg-purple-900/60 transition-colors">
+                        <Flame size={20} />
+                    </button>
+
+                    {/* Dropdown */}
+                    <button className="flex items-center gap-3 px-4 py-2 rounded-xl bg-[#1b2230] border border-white/5 text-sm font-medium hover:bg-[#232b3c] transition-colors">
+                        All Zones
+                        <ChevronDown size={16} className="text-gray-400" />
+                    </button>
+                </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 relative flex overflow-hidden">
+
+                {/* Map Area */}
+                <div className="absolute inset-0 bg-[#0a0d13] z-0 overflow-hidden">
+                    <ZonalMap zones={zones} />
+
+                    {/* Floating Summary Badges Bottom Right */}
+                    <div className="absolute bottom-6 right-6 z-20 flex gap-3">
+                        <div className="flex flex-col items-center justify-center bg-[#1b2230] border border-white/10 rounded-xl px-5 py-3 shadow-xl backdrop-blur-md">
+                            <div className="flex items-center gap-2 mb-1">
+                                <Navigation size={14} className="text-blue-400" />
+                                <span className="text-lg font-bold leading-none">12</span>
+                            </div>
+                            <span className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Zones</span>
                         </div>
-                        <div>
-                            <div className="text-3xl font-bold text-green-400">61,500</div>
-                            <div className="text-gray-300">Total Learners</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-blue-400">246</div>
-                            <div className="text-gray-300">Courses</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold text-purple-400">12,500+</div>
-                            <div className="text-gray-300">Active This Month</div>
+                        <div className="flex flex-col items-center justify-center bg-[#1b2230] border border-white/10 rounded-xl px-5 py-3 shadow-xl backdrop-blur-md">
+                            <div className="flex items-center gap-2 mb-1">
+                                <Users size={14} className="text-green-400" />
+                                <span className="text-lg font-bold leading-none">126.1K</span>
+                            </div>
+                            <span className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Learners</span>
                         </div>
                     </div>
-                </GlassCard>
 
-                {/* Zones Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    {zones.map((zone, index) => (
-                        <GlassCard
-                            key={zone.id}
-                            className="hover:bg-opacity-20 transition-all duration-300 transform hover:scale-105 cursor-pointer"
-                            style={{ animationDelay: `${index * 0.1}s` }}
-                            onClick={() => setSelectedZone(zone.id)}
-                        >
-                            <div className="text-center">
-                                <div className={`w-24 h-24 mx-auto rounded-full bg-gradient-to-br ${zone.color} flex items-center justify-center text-5xl mb-4`}>
-                                    {zone.icon}
+                    {/* Learning Intensity Legend Bottom Left */}
+                    <div className="absolute bottom-6 left-[330px] z-20">
+                        <div className="bg-[#171c26] border border-white/10 rounded-xl p-5 shadow-2xl">
+                            <h4 className="text-sm font-bold text-white mb-4">Learning Intensity</h4>
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
+                                    <span className="text-xs text-gray-300">Very High (80%+)</span>
                                 </div>
-                                <h3 className="text-xl font-bold mb-2">{zone.name}</h3>
-                                <p className="text-gray-200 mb-4">{zone.description}</p>
-
-                                <div className="flex justify-center gap-4 text-sm">
-                                    <span className="flex items-center gap-1 bg-blue-500 bg-opacity-30 px-3 py-1 rounded-full">
-                                        <Users size={14} />
-                                        {zone.learners.toLocaleString()}
-                                    </span>
-                                    <span className="flex items-center gap-1 bg-green-500 bg-opacity-30 px-3 py-1 rounded-full">
-                                        <BookOpen size={14} />
-                                        {zone.courses}
-                                    </span>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]"></div>
+                                    <span className="text-xs text-gray-300">High (60-80%)</span>
                                 </div>
-
-                                <button className="mt-4 w-full bg-yellow-400 text-blue-600 py-2 rounded-full font-semibold hover:bg-white transition-all">
-                                    Explore Zone
-                                </button>
-                            </div>
-                        </GlassCard>
-                    ))}
-                </div>
-
-                {/* Zone Details (if selected) */}
-                {selectedZone && (
-                    <GlassCard className="mt-12 max-w-4xl mx-auto">
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                            <MapPin className="text-yellow-400" />
-                            {zones.find(z => z.id === selectedZone)?.name} Details
-                        </h2>
-                        <p className="text-gray-200 mb-6">
-                            Explore region-specific courses, local success stories, and government schemes
-                            relevant to {zones.find(z => z.id === selectedZone)?.name}.
-                        </p>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <div className="bg-white bg-opacity-10 p-4 rounded-lg text-center">
-                                <Award className="mx-auto text-yellow-400 mb-2" size={32} />
-                                <h3 className="font-bold mb-1">Top Learners</h3>
-                                <p className="text-gray-300">250+ recognized</p>
-                            </div>
-                            <div className="bg-white bg-opacity-10 p-4 rounded-lg text-center">
-                                <BookOpen className="mx-auto text-blue-400 mb-2" size={32} />
-                                <h3 className="font-bold mb-1">Local Courses</h3>
-                                <p className="text-gray-300">40+ courses</p>
-                            </div>
-                            <div className="bg-white bg-opacity-10 p-4 rounded-lg text-center">
-                                <Globe className="mx-auto text-green-400 mb-2" size={32} />
-                                <h3 className="font-bold mb-1">Community</h3>
-                                <p className="text-gray-300">5000+ members</p>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-3 h-3 rounded-full bg-teal-500 shadow-[0_0_8px_rgba(20,184,166,0.6)]"></div>
+                                    <span className="text-xs text-gray-300">Moderate (40-60%)</span>
+                                </div>
                             </div>
                         </div>
-                        <button
-                            className="mt-6 w-full bg-gradient-to-r from-purple-500 to-pink-500 py-3 rounded-full font-semibold hover:opacity-90"
-                            onClick={() => setSelectedZone(null)}
-                        >
-                            Close
-                        </button>
-                    </GlassCard>
-                )}
-            </main>
+                    </div>
+                </div>
+
+                {/* Left Sidebar Overlay */}
+                <div className="relative z-30 w-[300px] h-full bg-[#11151c]/95 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shadow-2xl">
+                    <div className="mb-8">
+                        <h2 className="text-[32px] font-extrabold tracking-tight bg-gradient-to-r from-pink-400 via-pink-500 to-purple-500 bg-clip-text text-transparent pb-1">
+                            Zone Overview
+                        </h2>
+                        <p className="text-gray-400 text-sm pl-1 font-medium mt-1">
+                            Learning across India
+                        </p>
+                    </div>
+
+                    <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                        {/* Stat Card 1 */}
+                        <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-lg hover:border-white/10 transition-colors cursor-default">
+                            <Navigation className="text-blue-400 mb-3" size={24} />
+                            <h3 className="text-3xl font-bold text-white mb-1">12</h3>
+                            <p className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Active Zones</p>
+                        </div>
+
+                        {/* Stat Card 2 */}
+                        <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-lg hover:border-white/10 transition-colors cursor-default">
+                            <Users className="text-emerald-400 mb-3" size={24} />
+                            <h3 className="text-3xl font-bold text-white mb-1">126.1K</h3>
+                            <p className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Total Learners</p>
+                        </div>
+
+                        {/* Stat Card 3 */}
+                        <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-lg hover:border-white/10 transition-colors cursor-default">
+                            <BookOpen className="text-purple-400 mb-3" size={24} />
+                            <h3 className="text-3xl font-bold text-white mb-1">413</h3>
+                            <p className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Available Courses</p>
+                        </div>
+
+                        {/* Stat Card 4 */}
+                        <div className="bg-[#1b2230] border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-lg hover:border-white/10 transition-colors cursor-default">
+                            <Target className="text-yellow-400 mb-3" size={24} />
+                            <h3 className="text-3xl font-bold text-white mb-1">70%</h3>
+                            <p className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Avg Progress</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     );
-};
-
-export default DhanGyanZones;
+}

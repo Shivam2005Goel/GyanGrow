@@ -1,225 +1,235 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowLeft, Trophy, Medal, Crown, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Trophy, X, Crown, Flame, Sparkles, Star, User, ChevronRight } from 'lucide-react';
 
-// Glass Card
-const GlassCard = ({ children, className = '', style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => {
-    return (
-        <div className={`bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl p-6 shadow-lg ${className}`} style={style}>
-            {children}
-        </div>
-    );
-};
-
-// Leaderboard Data
-const leaderboardData = [
-    { rank: 1, name: 'Priya Sharma', xp: 15420, avatar: '👩‍💼', tier: 'Diamond', change: 2, streak: 45 },
-    { rank: 2, name: 'Anita Verma', xp: 14200, avatar: '👩‍🔬', tier: 'Platinum', change: -1, streak: 38 },
-    { rank: 3, name: 'Richa Singh', xp: 12850, avatar: '👩‍🎓', tier: 'Platinum', change: 1, streak: 30 },
-    { rank: 4, name: 'You', xp: 7500, avatar: '🧙‍♂️', tier: 'Gold', change: 3, streak: 7, isUser: true },
-    { rank: 5, name: 'Meera Patel', xp: 6100, avatar: '👩‍💻', tier: 'Gold', change: -2, streak: 15 },
-    { rank: 6, name: 'Sneha Gupta', xp: 5450, avatar: '👩‍🎨', tier: 'Silver', change: 0, streak: 12 },
-    { rank: 7, name: 'Kavita Rao', xp: 4800, avatar: '👩‍🔧', tier: 'Silver', change: 4, streak: 8 },
-    { rank: 8, name: 'Sunita Devi', xp: 4200, avatar: '👩‍🏫', tier: 'Silver', change: -1, streak: 5 },
-    { rank: 9, name: 'Pooja Sharma', xp: 3800, avatar: '👩‍⚕️', tier: 'Bronze', change: 2, streak: 3 },
-    { rank: 10, name: 'Rekha Singh', xp: 3400, avatar: '👩‍🌾', tier: 'Bronze', change: -3, streak: 2 }
+const topThree = [
+    { rank: 2, name: 'Rahul', xp: '1,18,000', avatar: '👨‍💼', color: 'text-gray-300', glow: 'shadow-[0_0_20px_rgba(156,163,175,0.4)]', bg: 'bg-gray-500/20', border: 'border-gray-500/50' },
+    { rank: 1, name: 'Priya', xp: '1,25,000', avatar: '👩‍💼', color: 'text-yellow-400', glow: 'shadow-[0_0_30px_rgba(250,204,21,0.5)]', bg: 'bg-yellow-500/20', border: 'border-yellow-500/50' },
+    { rank: 3, name: 'Ananya', xp: '1,05,000', avatar: '👩‍🎓', color: 'text-orange-400', glow: 'shadow-[0_0_20px_rgba(249,115,22,0.4)]', bg: 'bg-orange-500/20', border: 'border-orange-500/50' },
 ];
 
-// Animated Background
-const AnimatedBackground = () => {
-    return (
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-yellow-600 via-orange-500 to-red-500"></div>
-            {[...Array(15)].map((_, i) => (
-                <div
-                    key={i}
-                    className="absolute rounded-full bg-white opacity-10 animate-float"
-                    style={{
-                        width: `${Math.random() * 80 + 40}px`,
-                        height: `${Math.random() * 80 + 40}px`,
-                        top: `${Math.random() * 100}%`,
-                        left: `${Math.random() * 100}%`,
-                        animationDuration: `${Math.random() * 10 + 10}s`,
-                        animationDelay: `${Math.random() * 5}s`,
-                    }}
-                ></div>
-            ))}
-        </div>
-    );
-};
+const listData = [
+    { rank: 4, name: 'Arjun Kumar', country: 'IN', lvl: 38, streak: 45, xp: '98,000', tier: 'DIAMOND', tierColor: 'text-fuchsia-500', isUser: false, avatar: '👨‍🎓', bg: 'bg-[#29173a]' },
+    { rank: 5, name: 'Neha Gupta', country: 'IN', lvl: 35, streak: 67, xp: '92,000', tier: 'PLATINUM', tierColor: 'text-blue-400', isUser: true, avatar: '👩‍💻', bg: 'bg-[#1b2230]' },
+];
 
-const DhanGyanLeaderboard = ({ onNavigate }: { onNavigate?: (section: string) => void }) => {
-    const [timeFilter, setTimeFilter] = useState('weekly');
+const tiers = [
+    { name: 'Legend', xp: '1,00,000+ XP', icon: Crown, color: 'text-orange-500', bg: 'bg-orange-600/20' },
+    { name: 'Diamond', xp: '50,000+ XP', icon: Sparkles, color: 'text-fuchsia-500', bg: 'bg-fuchsia-600/20' },
+    { name: 'Platinum', xp: '15,000+ XP', icon: Trophy, color: 'text-blue-400', bg: 'bg-blue-500/20', active: true },
+    { name: 'Gold', xp: '5,000+ XP', icon: Trophy, color: 'text-yellow-500', bg: 'bg-yellow-600/20' },
+];
 
-    const getTierColor = (tier: string) => {
-        switch (tier) {
-            case 'Diamond': return 'bg-cyan-400 text-black';
-            case 'Platinum': return 'bg-gray-300 text-black';
-            case 'Gold': return 'bg-yellow-400 text-black';
-            case 'Silver': return 'bg-gray-400 text-white';
-            default: return 'bg-orange-700 text-white';
-        }
-    };
+export default function DhanGyanLeaderboard({ onNavigate }: { onNavigate?: (section: string) => void }) {
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState('Global');
 
-    const getRankIcon = (rank: number) => {
-        switch (rank) {
-            case 1: return <Crown className="text-yellow-400" size={24} />;
-            case 2: return <Medal className="text-gray-300" size={24} />;
-            case 3: return <Medal className="text-orange-400" size={24} />;
-            default: return <span className="font-bold text-gray-400">#{rank}</span>;
+    const handleClose = () => {
+        if (onNavigate) {
+            onNavigate('dhangyan');
+        } else {
+            router.back();
         }
     };
 
     return (
-        <div className="min-h-screen text-white relative" style={{ background: 'linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%)' }}>
-            <AnimatedBackground />
+        <div className="min-h-screen bg-[#090510] flex items-center justify-center p-4 md:p-8 font-sans relative overflow-hidden text-white">
+            {/* Background Ambience */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute w-[600px] h-[600px] rounded-full bg-purple-600/10 blur-[100px] -top-20 -left-20"></div>
+                <div className="absolute w-[800px] h-[800px] rounded-full bg-orange-600/5 blur-[120px] bottom-0 right-0"></div>
+            </div>
 
-            {/* Header */}
-            <header className="p-4 md:p-6 flex items-center justify-between">
-                <button
-                    onClick={() => onNavigate?.('dhangyan')}
-                    className="flex items-center gap-2 text-white hover:text-yellow-300 transition-colors"
-                >
-                    <ArrowLeft size={24} />
-                    <span>Back</span>
-                </button>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <Trophy className="text-yellow-400" />
-                    Leaderboard
-                </h1>
-                <div className="w-20"></div>
-            </header>
+            {/* Leaderboard Modal Container */}
+            <div className="w-full max-w-5xl bg-[#1b1928] border border-white/5 rounded-3xl shadow-2xl relative z-10 flex flex-col overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
 
-            <main className="p-4 md:p-8">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-6xl font-bold text-yellow-400 mb-4">Top Learners</h1>
-                    <p className="text-xl text-gray-200">Compete with the best and climb the ranks!</p>
+                {/* Modal Header */}
+                <div className="px-6 py-5 flex items-center justify-between border-b border-white/5">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                            <Trophy className="text-white" size={24} />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold tracking-wide">Leaderboard</h2>
+                            <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                                <Sparkles size={10} className="text-purple-400" />
+                                Season 5 • Ends in 3 days
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleClose}
+                        className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors text-gray-400 hover:text-white"
+                    >
+                        <X size={16} />
+                    </button>
                 </div>
 
-                {/* Time Filters */}
-                <div className="flex justify-center gap-4 mb-8">
-                    {['daily', 'weekly', 'monthly', 'all-time'].map((filter) => (
-                        <button
-                            key={filter}
-                            onClick={() => setTimeFilter(filter)}
-                            className={`px-6 py-2 rounded-full font-semibold transition-all ${timeFilter === filter
-                                    ? 'bg-yellow-400 text-blue-600'
-                                    : 'bg-white bg-opacity-10 hover:bg-opacity-20'
-                                }`}
-                        >
-                            {filter.charAt(0).toUpperCase() + filter.slice(1).replace('-', ' ')}
-                        </button>
-                    ))}
-                </div>
+                <div className="flex flex-col md:flex-row h-[600px]">
 
-                {/* Podium */}
-                <div className="flex justify-center items-end gap-4 mb-12 max-w-4xl mx-auto">
-                    {/* 2nd Place */}
-                    <div className="text-center">
-                        <div className="relative">
-                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-5xl mb-2">
-                                {leaderboardData[1].avatar}
-                            </div>
-                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gray-300 text-black px-3 py-1 rounded-full font-bold">
-                                #2
-                            </div>
-                        </div>
-                        <div className="bg-gray-500 bg-opacity-30 p-4 rounded-t-lg mt-2">
-                            <p className="font-bold">{leaderboardData[1].name}</p>
-                            <p className="text-yellow-400">{leaderboardData[1].xp.toLocaleString()} XP</p>
-                        </div>
-                        <div className="h-24 bg-gradient-to-t from-gray-400 to-transparent"></div>
-                    </div>
+                    {/* Left Panel */}
+                    <div className="w-full md:w-80 border-r border-white/5 p-6 flex flex-col gap-6 bg-[#161421]">
 
-                    {/* 1st Place */}
-                    <div className="text-center transform scale-110">
-                        <div className="relative">
-                            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-6xl mb-2 ring-4 ring-yellow-400">
-                                {leaderboardData[0].avatar}
-                            </div>
-                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-3 py-1 rounded-full font-bold">
-                                #1
-                            </div>
-                        </div>
-                        <div className="bg-yellow-500 bg-opacity-30 p-4 rounded-t-lg mt-2">
-                            <p className="font-bold">{leaderboardData[0].name}</p>
-                            <p className="text-yellow-400">{leaderboardData[0].xp.toLocaleString()} XP</p>
-                        </div>
-                        <div className="h-32 bg-gradient-to-t from-yellow-500 to-transparent"></div>
-                    </div>
-
-                    {/* 3rd Place */}
-                    <div className="text-center">
-                        <div className="relative">
-                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-5xl mb-2">
-                                {leaderboardData[2].avatar}
-                            </div>
-                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-orange-400 text-black px-3 py-1 rounded-full font-bold">
-                                #3
-                            </div>
-                        </div>
-                        <div className="bg-orange-600 bg-opacity-30 p-4 rounded-t-lg mt-2">
-                            <p className="font-bold">{leaderboardData[2].name}</p>
-                            <p className="text-yellow-400">{leaderboardData[2].xp.toLocaleString()} XP</p>
-                        </div>
-                        <div className="h-16 bg-gradient-to-t from-orange-600 to-transparent"></div>
-                    </div>
-                </div>
-
-                {/* Full Leaderboard */}
-                <GlassCard className="max-w-4xl mx-auto">
-                    <h2 className="text-xl font-bold mb-6">Full Rankings</h2>
-                    <div className="space-y-3">
-                        {leaderboardData.map((user) => (
-                            <div
-                                key={user.rank}
-                                className={`flex items-center justify-between p-4 rounded-lg ${user.isUser
-                                        ? 'bg-purple-500 bg-opacity-30 border border-purple-400'
-                                        : 'bg-white bg-opacity-5'
-                                    }`}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 text-center">
-                                        {user.rank <= 3 ? getRankIcon(user.rank) : (
-                                            <span className="font-bold text-gray-400">#{user.rank}</span>
-                                        )}
+                        {/* Current User Card */}
+                        <div className="bg-[#211f30] border border-white/5 rounded-2xl p-5">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="relative">
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 p-[2px]">
+                                        <div className="w-full h-full rounded-full bg-[#161421] flex items-center justify-center text-xl">
+                                            👩‍💻
+                                        </div>
                                     </div>
-                                    <span className="text-3xl">{user.avatar}</span>
-                                    <div>
-                                        <p className={`font-bold ${user.isUser ? 'text-purple-300' : ''}`}>
-                                            {user.name}
-                                            {user.isUser && <span className="ml-2 text-xs bg-purple-500 px-2 py-0.5 rounded-full">You</span>}
-                                        </p>
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <span className={`px-2 py-0.5 rounded-full text-xs ${getTierColor(user.tier)}`}>
-                                                {user.tier}
-                                            </span>
-                                            <span className="text-gray-400">🔥 {user.streak} days</span>
+
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-100">Neha Gupta</h3>
+                                    <p className="text-xs text-purple-300 font-medium">Platinum League</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 bg-[#161421] rounded-xl p-3 flex flex-col items-center justify-center border border-white/5">
+                                    <span className="text-[10px] text-gray-500 font-medium mb-0.5">Total XP</span>
+                                    <span className="font-bold text-white text-sm">92,000</span>
+                                </div>
+                                <div className="flex-1 bg-[#161421] rounded-xl p-3 flex flex-col items-center justify-center border border-white/5">
+                                    <span className="text-[10px] text-gray-500 font-medium mb-0.5">Rank</span>
+                                    <span className="font-bold text-white text-sm">#4</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* League Tiers */}
+                        <div className="flex-1 flex flex-col">
+                            <h4 className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-4">League Tiers</h4>
+                            <div className="space-y-3">
+                                {tiers.map((tier, idx) => {
+                                    const Icon = tier.icon;
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className={`flex items-center gap-4 p-3 rounded-xl transition-colors ${tier.active ? 'bg-[#211f30] border border-white/5' : 'hover:bg-white/5'}`}
+                                        >
+                                            <div className={`w-10 h-10 rounded-xl ${tier.bg} flex items-center justify-center ${tier.color}`}>
+                                                <Icon size={18} />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h5 className="font-bold text-sm text-gray-200">{tier.name}</h5>
+                                                <p className="text-[10px] text-gray-500 mt-0.5">{tier.xp}</p>
+                                            </div>
+                                            {tier.active && (
+                                                <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Panel */}
+                    <div className="flex-1 p-6 relative overflow-y-auto custom-scrollbar flex flex-col">
+
+                        {/* Tabs */}
+                        <div className="flex items-center gap-2 mb-10 bg-[#161421] p-1.5 rounded-xl border border-white/5 w-max">
+                            {['Global', 'Friends', 'State', 'Colleagues'].map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`px-5 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === tab
+                                            ? 'bg-white text-[#161421]'
+                                            : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Podium Section */}
+                        <div className="flex items-end justify-center gap-4 mb-10 mt-8 h-[220px]">
+                            {topThree.map((user) => (
+                                <div key={user.rank} className="flex flex-col items-center w-[110px] relative">
+                                    {user.rank === 1 && (
+                                        <div className="absolute -top-12 text-yellow-400 z-20 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">
+                                            <Crown size={32} />
+                                        </div>
+                                    )}
+                                    <div className="relative z-10 mb-[-15px]">
+                                        <div className={`w-12 h-12 rounded-xl bg-[#211f30] flex items-center justify-center text-2xl border ${user.border} ${user.glow}`}>
+                                            {user.avatar}
+                                        </div>
+                                    </div>
+                                    <div className={`w-full rounded-xl ${user.bg} border-t border-l border-r ${user.border} pt-6 pb-4 flex flex-col items-center ${user.rank === 1 ? 'h-[160px]' : user.rank === 2 ? 'h-[130px]' : 'h-[100px]'}`}>
+                                        <div className={`text-2xl font-black ${user.color} opacity-90 mb-1`}>#{user.rank}</div>
+                                        <div className="font-bold text-[13px] text-gray-200">{user.name}</div>
+                                        <div className="text-[10px] text-gray-400 mt-0.5">{user.xp}</div>
+                                        {user.rank === 1 && <div className="w-[60%] h-[1px] bg-yellow-500/30 mt-3 absolute bottom-4"></div>}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* List Items Below Podium */}
+                        <div className="space-y-3 flex-1 flex flex-col">
+                            {listData.map((user, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`flex items-center p-3 rounded-2xl border border-white/5 ${user.bg} ${user.isUser ? 'shadow-[0_4px_20px_rgba(0,0,0,0.2)]' : ''}`}
+                                >
+                                    <div className="w-12 text-center text-sm font-bold text-gray-400">
+                                        #{user.rank}
+                                    </div>
+                                    <div className="relative mr-4 shrink-0">
+                                        <div className="w-12 h-12 rounded-full border-2 border-white/10 flex items-center justify-center text-2xl bg-[#161421]">
+                                            {user.avatar}
+                                        </div>
+                                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center">
+                                            <Flame size={10} fill="currentColor" />
+                                        </div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-1.5">
+                                            <h4 className="font-bold text-sm text-gray-100">{user.name}</h4>
+                                            <span className="text-[10px] font-bold text-gray-500">{user.country}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 mt-1.5">
+                                            <div className="text-[10px] text-gray-400 px-2 py-[2px] rounded-md bg-white/5 border border-white/5">Lvl {user.lvl}</div>
+                                            <div className="flex items-center gap-1 text-[10px] text-orange-400 font-medium">
+                                                <Flame size={10} fill="currentColor" /> {user.streak} day streak
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right pr-4">
+                                        <div className="flex items-baseline justify-end gap-1 mb-0.5">
+                                            <span className="text-lg font-bold text-white">{user.xp}</span>
+                                            <span className="text-[10px] text-gray-500 font-bold tracking-wider">XP</span>
+                                        </div>
+                                        <div className={`text-[9px] font-black tracking-widest uppercase ${user.tierColor}`}>
+                                            {user.tier}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="text-right">
-                                        <p className="text-yellow-400 font-bold text-lg">{user.xp.toLocaleString()}</p>
-                                        <p className="text-gray-400 text-xs">XP</p>
-                                    </div>
-                                    <div className={`flex items-center ${user.change > 0 ? 'text-green-400' :
-                                            user.change < 0 ? 'text-red-400' : 'text-gray-400'
-                                        }`}>
-                                        {user.change > 0 ? <TrendingUp size={20} /> :
-                                            user.change < 0 ? <TrendingDown size={20} /> :
-                                                <Minus size={20} />}
-                                        <span className="ml-1">{Math.abs(user.change)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </GlassCard>
-            </main>
+                </div>
+            </div>
+            {/* Some CSS for scrollbar if needed */}
+            <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                  width: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                  background-color: rgba(255, 255, 255, 0.1);
+                  border-radius: 10px;
+                }
+            `}</style>
         </div>
     );
-};
-
-export default DhanGyanLeaderboard;
+}

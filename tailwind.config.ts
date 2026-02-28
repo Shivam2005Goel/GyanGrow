@@ -12,6 +12,15 @@ const config: Config = {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
             },
+            keyframes: {
+                "cell-ripple": {
+                    "0%": { opacity: "1" },
+                    "100%": { opacity: "0" },
+                }
+            },
+            animation: {
+                "cell-ripple": "cell-ripple var(--duration) ease-out var(--delay)",
+            }
         },
     },
     plugins: [],
