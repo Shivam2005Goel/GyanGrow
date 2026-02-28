@@ -67,7 +67,8 @@ export default function MrVighelp() {
 
     // Init Gemini
     const initGemini = useCallback(async () => {
-        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyCf1jW9ZiY1rG_TkVU5ZXftDjmlW0-5Zi8';
+        if (!apiKey) {
             console.error('Gemini API key is missing');
             return;
         }
@@ -84,7 +85,7 @@ STUDENT PROFILE (ALEX SHARMA):
 - Strengths: Frontend Architecture, Mathematics
 `;
 
-            const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
+            const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({
                 model: 'gemini-2.5-flash',
                 systemInstruction: `You are a highly advanced AI assistant named Mr. Vighelp integrated into the SYNAPSE OS application.
@@ -250,8 +251,7 @@ STUDENT PROFILE (ALEX SHARMA):
             setIsTyping(true);
 
             try {
-                // Using the requested model
-                const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
+                const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyCf1jW9ZiY1rG_TkVU5ZXftDjmlW0-5Zi8');
                 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
                 const imageParts = [
@@ -527,7 +527,7 @@ STUDENT PROFILE (ALEX SHARMA):
                     <button
                         type="button"
                         onClick={toggleListening}
-                        className={`p - 2.5 rounded - xl transition - all shrink - 0 ${isListening
+                        className={`p-2.5 rounded-xl transition-all shrink-0 ${isListening
                             ? 'bg-red-500/20 text-red-500 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
                             : 'text-white/40 bg-white/[0.03] border border-white/10 hover:text-white hover:bg-white/10'
                             }`}
