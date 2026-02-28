@@ -26,7 +26,6 @@ import ClubsEvents from '@/components/ClubsEvents';
 import StudyBuddy from '@/components/StudyBuddy';
 import BudgetTracker from '@/components/BudgetTracker';
 import AttendanceTracker from '@/components/AttendanceTracker';
-import AIAssistant from '@/components/AIAssistant';
 import AiMockInterview from '@/components/AiMockInterview';
 import MrVighelp from '@/components/MrVighelp';
 import GovSchemes from '@/components/GovSchemes';

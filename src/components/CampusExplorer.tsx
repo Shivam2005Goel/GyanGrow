@@ -8,8 +8,6 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
-const Balatro = dynamic(() => import('./Balatro'), { ssr: false });
-
 // ── Types ──────────────────────────────────────────────────────
 interface CourtAvailability {
     status: 'Available' | 'Engaged' | 'Maintenance';
@@ -660,33 +658,6 @@ export default function CampusExplorer() {
 
     return (
         <div className="relative w-full h-full bg-[#0a0e1a] overflow-hidden">
-            {/* Balatro Shader Background */}
-            <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                zIndex: 0,
-                opacity: 0.55,
-                pointerEvents: 'none',
-            }}>
-                <Balatro
-                    color1="#06b6d4"
-                    color2="#7c3aed"
-                    color3="#0a0e1a"
-                    spinSpeed={3.0}
-                    spinRotation={-1.5}
-                    contrast={2.5}
-                    lighting={0.3}
-                    spinAmount={0.15}
-                    pixelFilter={900}
-                    spinEase={0.8}
-                    isRotate={true}
-                    mouseInteraction={false}
-                />
-            </div>
-
             {/* Map Container - Full Screen */}
             <div className="absolute inset-0 z-0">
                 <LeafletMap
