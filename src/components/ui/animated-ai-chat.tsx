@@ -1,647 +1,262 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useCallback, useTransition } from "react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import {
-    ImageIcon,
-    FileUp,
-    Figma,
-    MonitorIcon,
-    CircleUserRound,
-    ArrowUpIcon,
-    Paperclip,
-    PlusIcon,
-    SendIcon,
-    XIcon,
-    LoaderIcon,
-    Sparkles,
-    Command,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import * as React from "react"
-import ShaderBackground from "./shader-background";
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Bot, User, Sparkles, Copy, ThumbsUp, ThumbsDown, RefreshCw } from 'lucide-react';
 
-interface UseAutoResizeTextareaProps {
-    minHeight: number;
-    maxHeight?: number;
+interface Message {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: Date;
 }
 
-function useAutoResizeTextarea({
-    minHeight,
-    maxHeight,
-}: UseAutoResizeTextareaProps) {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-    const adjustHeight = useCallback(
-        (reset?: boolean) => {
-            const textarea = textareaRef.current;
-            if (!textarea) return;
-
-            if (reset) {
-                textarea.style.height = `${minHeight}px`;
-                return;
-            }
-
-            textarea.style.height = `${minHeight}px`;
-            const newHeight = Math.max(
-                minHeight,
-                Math.min(
-                    textarea.scrollHeight,
-                    maxHeight ?? Number.POSITIVE_INFINITY
-                )
-            );
-
-            textarea.style.height = `${newHeight}px`;
-        },
-        [minHeight, maxHeight]
-    );
-
-    useEffect(() => {
-        const textarea = textareaRef.current;
-        if (textarea) {
-            textarea.style.height = `${minHeight}px`;
-        }
-    }, [minHeight]);
-
-    useEffect(() => {
-        const handleResize = () => adjustHeight();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, [adjustHeight]);
-
-    return { textareaRef, adjustHeight };
-}
-
-interface CommandSuggestion {
-    icon: React.ReactNode;
-    label: string;
-    description: string;
-    prefix: string;
-}
-
-interface TextareaProps
-    extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-    containerClassName?: string;
-    showRing?: boolean;
-}
-
-const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-    ({ className, containerClassName, showRing = true, ...props }, ref) => {
-        const [isFocused, ReactSetIsFocused] = React.useState(false);
-
-        return (
-            <div className={cn(
-                "relative",
-                containerClassName
-            )}>
-                <textarea
-                    className={cn(
-                        "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm",
-                        "transition-all duration-200 ease-in-out",
-                        "placeholder:text-muted-foreground",
-                        "disabled:cursor-not-allowed disabled:opacity-50",
-                        showRing ? "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0" : "",
-                        className
-                    )}
-                    ref={ref}
-                    onFocus={() => ReactSetIsFocused(true)}
-                    onBlur={() => ReactSetIsFocused(false)}
-                    {...props}
-                />
-
-                {showRing && isFocused && (
-                    <motion.span
-                        className="absolute inset-0 rounded-md pointer-events-none ring-2 ring-offset-0 ring-violet-500/30"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                    />
-                )}
-
-                {props.onChange && (
-                    <div
-                        className="absolute bottom-2 right-2 opacity-0 w-2 h-2 bg-violet-500 rounded-full"
-                        style={{
-                            animation: 'none',
-                        }}
-                        id="textarea-ripple"
-                    />
-                )}
-            </div>
-        )
-    }
-)
-Textarea.displayName = "Textarea"
+const quickPrompts = [
+    "Explain machine learning",
+    "Write a Python function",
+    "Help with calculus",
+    "Career advice for CS students"
+];
 
 export function AnimatedAIChat() {
-    const [value, setValue] = useState("");
-    const [attachments, setAttachments] = useState<string[]>([]);
+    const [messages, setMessages] = useState<Message[]>([
+        {
+            id: '1',
+            role: 'assistant',
+            content: "Hello! I'm your AI learning assistant. I can help you with:\n\n• **Programming** - Code explanations, debugging, best practices\n• **Mathematics** - Calculus, linear algebra, statistics\n• **Career** - Job prep, portfolio reviews, interview tips\n• **General** - Any questions about your studies\n\nHow can I help you today?",
+            timestamp: new Date()
+        }
+    ]);
+    const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
-    const [isPending, startTransition] = useTransition();
-    const [activeSuggestion, setActiveSuggestion] = useState<number>(-1);
-    const [showCommandPalette, setShowCommandPalette] = useState(false);
-    const [recentCommand, setRecentCommand] = useState<string | null>(null);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const { textareaRef, adjustHeight } = useAutoResizeTextarea({
-        minHeight: 60,
-        maxHeight: 200,
-    });
-    const [inputFocused, setInputFocused] = useState(false);
-    const commandPaletteRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const commandSuggestions: CommandSuggestion[] = [
-        {
-            icon: <ImageIcon className="w-4 h-4" />,
-            label: "Clone UI",
-            description: "Generate a UI from a screenshot",
-            prefix: "/clone"
-        },
-        {
-            icon: <Figma className="w-4 h-4" />,
-            label: "Import Figma",
-            description: "Import a design from Figma",
-            prefix: "/figma"
-        },
-        {
-            icon: <MonitorIcon className="w-4 h-4" />,
-            label: "Create Page",
-            description: "Generate a new web page",
-            prefix: "/page"
-        },
-        {
-            icon: <Sparkles className="w-4 h-4" />,
-            label: "Improve",
-            description: "Improve existing UI design",
-            prefix: "/improve"
-        },
-    ];
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     useEffect(() => {
-        if (value.startsWith('/') && !value.includes(' ')) {
-            setShowCommandPalette(true);
+        scrollToBottom();
+    }, [messages]);
 
-            const matchingSuggestionIndex = commandSuggestions.findIndex(
-                (cmd) => cmd.prefix.startsWith(value)
-            );
+    const handleSend = async () => {
+        if (!input.trim() || isTyping) return;
 
-            if (matchingSuggestionIndex >= 0) {
-                setActiveSuggestion(matchingSuggestionIndex);
-            } else {
-                setActiveSuggestion(-1);
-            }
-        } else {
-            setShowCommandPalette(false);
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: input.trim(),
+            timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setIsTyping(true);
+
+        // Simulate AI response
+        setTimeout(() => {
+            const aiResponse = generateResponse(userMessage.content);
+            const assistantMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: aiResponse,
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, assistantMessage]);
+            setIsTyping(false);
+        }, 1500);
+    };
+
+    const generateResponse = (query: string): string => {
+        const lowerQuery = query.toLowerCase();
+
+        if (lowerQuery.includes('machine learning') || lowerQuery.includes('ml')) {
+            return "## Machine Learning Overview\n\nMachine Learning is a subset of AI that enables systems to learn from data. Here are the main types:\n\n### 1. **Supervised Learning**\n- Uses labeled datasets\n- Examples: Classification, Regression\n- Algorithms: Linear Regression, Decision Trees, Neural Networks\n\n### 2. **Unsupervised Learning**\n- Finds patterns in unlabeled data\n- Examples: Clustering, Dimensionality Reduction\n- Algorithms: K-Means, PCA, Autoencoders\n\n### 3. **Reinforcement Learning**\n- Learns through rewards/penalties\n- Used in game AI, robotics\n- Algorithms: Q-Learning, Deep Q-Networks\n\nWould you like me to dive deeper into any specific area?";
         }
-    }, [value]);
 
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
-        };
-
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-        };
-    }, []);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node;
-            const commandButton = document.querySelector('[data-command-button]');
-
-            if (commandPaletteRef.current &&
-                !commandPaletteRef.current.contains(target) &&
-                !commandButton?.contains(target)) {
-                setShowCommandPalette(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (showCommandPalette) {
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                setActiveSuggestion(prev =>
-                    prev < commandSuggestions.length - 1 ? prev + 1 : 0
-                );
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                setActiveSuggestion(prev =>
-                    prev > 0 ? prev - 1 : commandSuggestions.length - 1
-                );
-            } else if (e.key === 'Tab' || e.key === 'Enter') {
-                e.preventDefault();
-                if (activeSuggestion >= 0) {
-                    const selectedCommand = commandSuggestions[activeSuggestion];
-                    setValue(selectedCommand.prefix + ' ');
-                    setShowCommandPalette(false);
-
-                    setRecentCommand(selectedCommand.label);
-                    setTimeout(() => setRecentCommand(null), 3500);
-                }
-            } else if (e.key === 'Escape') {
-                e.preventDefault();
-                setShowCommandPalette(false);
-            }
-        } else if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            if (value.trim()) {
-                handleSendMessage();
-            }
+        if (lowerQuery.includes('python') || lowerQuery.includes('code') || lowerQuery.includes('function')) {
+            return "## Code Example\n\nHere's a helpful Python function:\n\n```python\ndef binary_search(arr, target):\n    \"\"\"Binary search implementation\"\"\"\n    left, right = 0, len(arr) - 1\n    \n    while left <= right:\n        mid = (left + right) // 2\n        \n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    \n    return -1  # Element not found\n\n# Usage\narr = [1, 3, 5, 7, 9, 11, 13]\nresult = binary_search(arr, 7)\nprint(f\"Element found at index: {result}\")\n```\n\n**Time Complexity:** O(log n)\n**Space Complexity:** O(1)\n\nWould you like more examples?";
         }
-    };
 
-    const handleSendMessage = () => {
-        if (value.trim()) {
-            startTransition(() => {
-                setIsTyping(true);
-                setTimeout(() => {
-                    setIsTyping(false);
-                    setValue("");
-                    adjustHeight(true);
-                }, 3000);
-            });
+        if (lowerQuery.includes('calculus') || lowerQuery.includes('derivative') || lowerQuery.includes('integral')) {
+            return "## Calculus Fundamentals\n\n### Derivatives\nThe derivative represents the rate of change of a function:\n\n$$\\frac{d}{dx}[x^n] = nx^{n-1}$$\n\n**Key Rules:**\n- **Product Rule:** (fg)' = f'g + fg'\n- **Chain Rule:** (f∘g)' = f'(g) · g'\n- **Quotient Rule:** (f/g)' = (f'g - fg')/g²\n\n### Integrals\nThe integral represents the area under a curve:\n\n$$\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$$\n\n**Common Integrals:**\n- $\\int e^x dx = e^x + C$\n- $\\int \\frac{1}{x} dx = \\ln|x| + C$\n\nWould you like to see step-by-step examples?";
         }
+
+        if (lowerQuery.includes('career') || lowerQuery.includes('job') || lowerQuery.includes('interview')) {
+            return "## Career Guidance for CS Students\n\n### Preparation Roadmap\n\n**1. Technical Skills (Priority Order)**\n- Data Structures & Algorithms\n- One programming language (Python/Java/C++)\n- SQL & Databases\n- Web fundamentals (HTML/CSS/JS)\n- Git & Version Control\n\n**2. Projects Portfolio**\n- Build 3-4 substantial projects\n- Deploy them live\n- Write clear README docs\n- Include in your resume\n\n**3. Interview Prep**\n- LeetCode: 100+ problems (Easy/Medium)\n- System Design basics\n- Behavioral questions\n\n**4. Resources**\n- LeetCode, HackerRank\n- freeCodeCamp\n- CS50 (for fundamentals)\n\nWhat specific area would you like to focus on?";
+        }
+
+        return "I understand you're asking about: **\"${query}\"**\n\nHere's what I can help you with:\n\n1. **Technical Concepts** - Explain programming, algorithms, data structures\n2. **Mathematics** - Calculus, linear algebra, statistics\n3. **Study Tips** - Effective learning strategies\n4. **Career Guidance** - Job prep, portfolio building\n\nCould you provide more details about what you'd like to learn?";
     };
 
-    const handleAttachFile = () => {
-        const mockFileName = `file-${Math.floor(Math.random() * 1000)}.pdf`;
-        setAttachments(prev => [...prev, mockFileName]);
+    const handleQuickPrompt = (prompt: string) => {
+        setInput(prompt);
     };
 
-    const removeAttachment = (index: number) => {
-        setAttachments(prev => prev.filter((_, i) => i !== index));
-    };
-
-    const selectCommandSuggestion = (index: number) => {
-        const selectedCommand = commandSuggestions[index];
-        setValue(selectedCommand.prefix + ' ');
-        setShowCommandPalette(false);
-
-        setRecentCommand(selectedCommand.label);
-        setTimeout(() => setRecentCommand(null), 2000);
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
     };
 
     return (
-        <div className="min-h-screen flex flex-col w-full items-center justify-center bg-transparent text-white p-6 relative overflow-hidden">
-            <div className="absolute inset-0 w-full h-full overflow-hidden">
-                <ShaderBackground />
-            </div>
-            <div className="w-full max-w-2xl mx-auto relative">
-                <motion.div
-                    className="relative z-10 space-y-12"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                >
-                    <div className="text-center space-y-3">
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2, duration: 0.5 }}
-                            className="inline-block"
-                        >
-                            <h1 className="text-3xl font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white/90 to-white/40 pb-1">
-                                How can I help today?
-                            </h1>
-                            <motion.div
-                                className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                                initial={{ width: 0, opacity: 0 }}
-                                animate={{ width: "100%", opacity: 1 }}
-                                transition={{ delay: 0.5, duration: 0.8 }}
-                            />
-                        </motion.div>
-                        <motion.p
-                            className="text-sm text-white/40"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                        >
-                            Type a command or ask a question
-                        </motion.p>
-                    </div>
+        <div className="h-full flex flex-col glass-enhanced rounded-2xl overflow-hidden perspective-3d" style={{ transformStyle: 'preserve-3d' }}>
+            {/* Animated glow background */}
+            <div className="absolute inset-0 holographic opacity-30 pointer-events-none" />
 
-                    <motion.div
-                        className="relative backdrop-blur-2xl bg-white/[0.02] rounded-2xl border border-white/[0.05] shadow-2xl"
-                        initial={{ scale: 0.98 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.1 }}
+            {/* Header */}
+            <motion.div
+                className="relative flex items-center gap-3 px-6 py-4 border-b border-white/[0.06]"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                <motion.div
+                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-violet-500/30 neumorphic-button"
+                    animate={{
+                        rotateY: [0, 360],
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                    style={{ transformStyle: 'preserve-3d' }}
+                >
+                    <Bot className="w-5 h-5 text-white" />
+                </motion.div>
+                <div>
+                    <h2 className="text-lg font-bold text-white/90">AI Learning Assistant</h2>
+                    <p className="text-xs text-white/40 flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        Online • Ready to help
+                    </p>
+                </div>
+                <div className="ml-auto flex gap-2">
+                    <motion.button
+                        whileHover={{ scale: 1.1, rotate: 180 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.06] transition-colors neumorphic-button"
                     >
-                        <AnimatePresence>
-                            {showCommandPalette && (
-                                <motion.div
-                                    ref={commandPaletteRef}
-                                    className="absolute left-4 right-4 bottom-full mb-2 backdrop-blur-xl bg-black/90 rounded-lg z-50 shadow-lg border border-white/10 overflow-hidden"
-                                    initial={{ opacity: 0, y: 5 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 5 }}
-                                    transition={{ duration: 0.15 }}
-                                >
-                                    <div className="py-1 bg-black/95">
-                                        {commandSuggestions.map((suggestion, index) => (
-                                            <motion.div
-                                                key={suggestion.prefix}
-                                                className={cn(
-                                                    "flex items-center gap-2 px-3 py-2 text-xs transition-colors cursor-pointer",
-                                                    activeSuggestion === index
-                                                        ? "bg-white/10 text-white"
-                                                        : "text-white/70 hover:bg-white/5"
-                                                )}
-                                                onClick={() => selectCommandSuggestion(index)}
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                transition={{ delay: index * 0.03 }}
-                                            >
-                                                <div className="w-5 h-5 flex items-center justify-center text-white/60">
-                                                    {suggestion.icon}
-                                                </div>
-                                                <div className="font-medium">{suggestion.label}</div>
-                                                <div className="text-white/40 text-xs ml-1">
-                                                    {suggestion.prefix}
-                                                </div>
-                                            </motion.div>
+                        <RefreshCw size={18} />
+                    </motion.button>
+                </div>
+            </motion.div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <AnimatePresence>
+                    {messages.map((message) => (
+                        <motion.div
+                            key={message.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
+                        >
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${message.role === 'user'
+                                ? 'bg-cyan-500/20 text-cyan-400'
+                                : 'bg-violet-500/20 text-violet-400'
+                                }`}>
+                                {message.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+                            </div>
+                            <div className={`flex-1 max-w-[80%] ${message.role === 'user' ? 'text-right' : ''}`}>
+                                <div className={`inline-block p-4 rounded-2xl ${message.role === 'user'
+                                    ? 'bg-cyan-500/20 text-cyan-100 rounded-br-md'
+                                    : 'bg-white/[0.05] text-white/80 rounded-bl-md'
+                                    }`}>
+                                    <div className="prose prose-invert prose-sm max-w-none">
+                                        {message.content.split('\n').map((line, i) => (
+                                            <p key={i} className="mb-1 last:mb-0">{line}</p>
                                         ))}
                                     </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-
-                        <div className="p-4">
-                            <Textarea
-                                ref={textareaRef}
-                                value={value}
-                                onChange={(e) => {
-                                    setValue(e.target.value);
-                                    adjustHeight();
-                                }}
-                                onKeyDown={handleKeyDown}
-                                onFocus={() => setInputFocused(true)}
-                                onBlur={() => setInputFocused(false)}
-                                placeholder="Ask about VIT..."
-                                containerClassName="w-full"
-                                className={cn(
-                                    "w-full px-4 py-3",
-                                    "resize-none",
-                                    "bg-transparent",
-                                    "border-none",
-                                    "text-white/90 text-sm",
-                                    "focus:outline-none",
-                                    "placeholder:text-white/20",
-                                    "min-h-[60px]"
-                                )}
-                                style={{
-                                    overflow: "hidden",
-                                }}
-                                showRing={false}
-                            />
-                        </div>
-
-                        <AnimatePresence>
-                            {attachments.length > 0 && (
-                                <motion.div
-                                    className="px-4 pb-3 flex gap-2 flex-wrap"
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                >
-                                    {attachments.map((file, index) => (
-                                        <motion.div
-                                            key={index}
-                                            className="flex items-center gap-2 text-xs bg-white/[0.03] py-1.5 px-3 rounded-lg text-white/70"
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.9 }}
+                                </div>
+                                {message.role === 'assistant' && (
+                                    <div className="flex gap-2 mt-2">
+                                        <button
+                                            onClick={() => copyToClipboard(message.content)}
+                                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.06] transition-colors"
+                                            title="Copy"
                                         >
-                                            <span>{file}</span>
-                                            <button
-                                                onClick={() => removeAttachment(index)}
-                                                className="text-white/40 hover:text-white transition-colors"
-                                            >
-                                                <XIcon className="w-3 h-3" />
-                                            </button>
-                                        </motion.div>
-                                    ))}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-
-                        <div className="p-4 border-t border-white/[0.05] flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <motion.button
-                                    type="button"
-                                    onClick={handleAttachFile}
-                                    whileTap={{ scale: 0.94 }}
-                                    className="p-2 text-white/40 hover:text-white/90 rounded-lg transition-colors relative group"
-                                >
-                                    <Paperclip className="w-4 h-4" />
-                                    <motion.span
-                                        className="absolute inset-0 bg-white/[0.05] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                                        layoutId="button-highlight"
-                                    />
-                                </motion.button>
-                                <motion.button
-                                    type="button"
-                                    data-command-button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowCommandPalette(prev => !prev);
-                                    }}
-                                    whileTap={{ scale: 0.94 }}
-                                    className={cn(
-                                        "p-2 text-white/40 hover:text-white/90 rounded-lg transition-colors relative group",
-                                        showCommandPalette && "bg-white/10 text-white/90"
-                                    )}
-                                >
-                                    <Command className="w-4 h-4" />
-                                    <motion.span
-                                        className="absolute inset-0 bg-white/[0.05] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                                        layoutId="button-highlight"
-                                    />
-                                </motion.button>
+                                            <Copy size={14} />
+                                        </button>
+                                        <button
+                                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.06] transition-colors"
+                                            title="Helpful"
+                                        >
+                                            <ThumbsUp size={14} />
+                                        </button>
+                                        <button
+                                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.06] transition-colors"
+                                            title="Not helpful"
+                                        >
+                                            <ThumbsDown size={14} />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
 
-                            <motion.button
-                                type="button"
-                                onClick={handleSendMessage}
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.98 }}
-                                disabled={isTyping || !value.trim()}
-                                className={cn(
-                                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                                    "flex items-center gap-2",
-                                    value.trim()
-                                        ? "bg-white text-[#0A0A0B] shadow-lg shadow-white/10"
-                                        : "bg-white/[0.05] text-white/40"
-                                )}
-                            >
-                                {isTyping ? (
-                                    <LoaderIcon className="w-4 h-4 animate-[spin_2s_linear_infinite]" />
-                                ) : (
-                                    <SendIcon className="w-4 h-4" />
-                                )}
-                                <span>Send</span>
-                            </motion.button>
-                        </div>
-                    </motion.div>
-
-                    <div className="flex flex-wrap items-center justify-center gap-2">
-                        {commandSuggestions.map((suggestion, index) => (
-                            <motion.button
-                                key={suggestion.prefix}
-                                onClick={() => selectCommandSuggestion(index)}
-                                className="flex items-center gap-2 px-3 py-2 bg-white/[0.02] hover:bg-white/[0.05] rounded-lg text-sm text-white/60 hover:text-white/90 transition-all relative group"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                            >
-                                {suggestion.icon}
-                                <span>{suggestion.label}</span>
-                                <motion.div
-                                    className="absolute inset-0 border border-white/[0.05] rounded-lg"
-                                    initial={false}
-                                    animate={{
-                                        opacity: [0, 1],
-                                        scale: [0.98, 1],
-                                    }}
-                                    transition={{
-                                        duration: 0.3,
-                                        ease: "easeOut",
-                                    }}
-                                />
-                            </motion.button>
-                        ))}
-                    </div>
-                </motion.div>
-            </div>
-
-            <AnimatePresence>
                 {isTyping && (
                     <motion.div
-                        className="fixed bottom-8 mx-auto transform -translate-x-1/2 backdrop-blur-2xl bg-white/[0.02] rounded-full px-4 py-2 shadow-lg border border-white/[0.05]"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex gap-3"
                     >
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-7 rounded-full bg-white/[0.05] flex items-center justify-center text-center">
-                                <span className="text-xs font-medium text-white/90 mb-0.5">zap</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-white/70">
-                                <span>Thinking</span>
-                                <TypingDots />
+                        <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                            <Bot size={16} className="text-violet-400" />
+                        </div>
+                        <div className="bg-white/[0.05] rounded-2xl rounded-bl-md px-4 py-3">
+                            <div className="flex gap-1">
+                                <span className="w-2 h-2 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <span className="w-2 h-2 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <span className="w-2 h-2 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '300ms' }} />
                             </div>
                         </div>
                     </motion.div>
                 )}
-            </AnimatePresence>
 
-            {inputFocused && (
-                <motion.div
-                    className="fixed w-[50rem] h-[50rem] rounded-full pointer-events-none z-0 opacity-[0.02] bg-gradient-to-r from-violet-500 via-fuchsia-500 to-indigo-500 blur-[96px]"
-                    animate={{
-                        x: mousePosition.x - 400,
-                        y: mousePosition.y - 400,
-                    }}
-                    transition={{
-                        type: "spring",
-                        damping: 25,
-                        stiffness: 150,
-                        mass: 0.5,
-                    }}
-                />
-            )}
-        </div>
-    );
-}
-
-function TypingDots() {
-    return (
-        <div className="flex items-center ml-1">
-            {[1, 2, 3].map((dot) => (
-                <motion.div
-                    key={dot}
-                    className="w-1.5 h-1.5 bg-white/90 rounded-full mx-0.5"
-                    initial={{ opacity: 0.3 }}
-                    animate={{
-                        opacity: [0.3, 0.9, 0.3],
-                        scale: [0.85, 1.1, 0.85]
-                    }}
-                    transition={{
-                        duration: 1.2,
-                        repeat: Infinity,
-                        delay: dot * 0.15,
-                        ease: "easeInOut",
-                    }}
-                    style={{
-                        boxShadow: "0 0 4px rgba(255, 255, 255, 0.3)"
-                    }}
-                />
-            ))}
-        </div>
-    );
-}
-
-interface ActionButtonProps {
-    icon: React.ReactNode;
-    label: string;
-}
-
-function ActionButton({ icon, label }: ActionButtonProps) {
-    const [isHovered, setIsHovered] = useState(false);
-
-    return (
-        <motion.button
-            type="button"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.97 }}
-            onHoverStart={() => setIsHovered(true)}
-            onHoverEnd={() => setIsHovered(false)}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 rounded-full border border-neutral-800 text-neutral-400 hover:text-white transition-all relative overflow-hidden group"
-        >
-            <div className="relative z-10 flex items-center gap-2">
-                {icon}
-                <span className="text-xs relative z-10">{label}</span>
+                <div ref={messagesEndRef} />
             </div>
 
-            <AnimatePresence>
-                {isHovered && (
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-indigo-500/10"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
+            {/* Quick prompts */}
+            {messages.length <= 1 && (
+                <div className="px-4 pb-2 flex flex-wrap gap-2">
+                    {quickPrompts.map((prompt, i) => (
+                        <button
+                            key={i}
+                            onClick={() => handleQuickPrompt(prompt)}
+                            className="px-3 py-1.5 text-xs text-white/60 bg-white/[0.05] hover:bg-white/[0.1] rounded-full border border-white/[0.06] transition-colors flex items-center gap-1"
+                        >
+                            <Sparkles size={12} className="text-violet-400" />
+                            {prompt}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {/* Input */}
+            <div className="relative p-4 border-t border-white/[0.06]">
+                {/* Input glow effect */}
+                <div className="absolute inset-x-4 bottom-4 h-px bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+
+                <div className="flex gap-3">
+                    <motion.input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                        placeholder="Ask me anything..."
+                        className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white/80 placeholder:text-white/30 focus:outline-none focus:border-violet-500/50 focus:shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all neumorphic-inset"
+                        disabled={isTyping}
+                        whileFocus={{ scale: 1.01 }}
                     />
-                )}
-            </AnimatePresence>
-
-            <motion.span
-                className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-violet-500 to-indigo-500"
-                initial={{ width: 0 }}
-                whileHover={{ width: "100%" }}
-                transition={{ duration: 0.3 }}
-            />
-        </motion.button>
+                    <motion.button
+                        onClick={handleSend}
+                        disabled={!input.trim() || isTyping}
+                        whileHover={{ scale: 1.05, rotate: [0, 5, -5, 0] }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity shadow-lg shadow-violet-500/30 neumorphic-button"
+                    >
+                        <Send size={18} />
+                    </motion.button>
+                </div>
+            </div>
+        </div>
     );
-}
-
-const rippleKeyframes = `
-@keyframes ripple {
-  0% { transform: scale(0.5); opacity: 0.6; }
-  100% { transform: scale(2); opacity: 0; }
-}
-`;
-
-if (typeof document !== 'undefined') {
-    const style = document.createElement('style');
-    style.innerHTML = rippleKeyframes;
-    document.head.appendChild(style);
 }

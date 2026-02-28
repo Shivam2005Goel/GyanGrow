@@ -1,0 +1,102 @@
+.input-wrapper {
+    width: 100%;
+    margin-bottom: var(--space-4);
+}
+
+.input-label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.input-container {
+    position: relative;
+    width: 100%;
+}
+
+.input {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: var(--glass-background);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+    outline: none;
+}
+
+.input-with-icon {
+    padding-left: 3rem;
+}
+
+.input:focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.input-error {
+    border-color: var(--color-error);
+}
+
+.input-error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.input-icon {
+    position: absolute;
+    left: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+.input-toggle-password {
+    position: absolute;
+    right: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+.input-toggle-password:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.input-focus-border {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+    border-radius: 2px;
+}
+
+.input-error-message {
+    margin-top: var(--space-2);
+    font-size: 0.875rem;
+    color: var(--color-error);
+}

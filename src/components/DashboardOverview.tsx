@@ -61,7 +61,7 @@ function AnimatedNumber({ value, duration = 2 }: { value: number; duration?: num
     return <span>{count}</span>;
 }
 
-// Glass Card Component with hover effects
+// Glass Card Component with 3D hover effects
 function GlassCard({ children, className = '', gradient = false, delay = 0, onMouseEnter, onMouseLeave }: {
     children: React.ReactNode;
     className?: string;
@@ -72,28 +72,43 @@ function GlassCard({ children, className = '', gradient = false, delay = 0, onMo
 }) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20, rotateX: -10 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
             transition={{ delay, duration: 0.5, type: 'spring', stiffness: 100 }}
-            whileHover={{ y: -4, scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
+            whileHover={{
+                y: -8,
+                scale: 1.02,
+                rotateX: 5,
+                rotateY: -5,
+                z: 50
+            }}
+            whileTap={{ scale: 0.98 }}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            className={`relative overflow-hidden rounded-2xl backdrop-blur-xl border border-white/[0.06] ${gradient
+            className={`relative overflow-hidden rounded-2xl backdrop-blur-xl border border-white/[0.06] perspective-3d ${gradient
                 ? 'bg-gradient-to-br from-white/[0.08] to-white/[0.02]'
                 : 'bg-white/[0.03]'
                 } ${className}`}
+            style={{ transformStyle: 'preserve-3d' }}
         >
             {/* Shine effect */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             </div>
+            {/* 3D depth layer */}
+            <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    transform: 'translateZ(-20px)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)'
+                }}
+            />
             {children}
         </motion.div>
     );
 }
 
-// Stat Card with animated icon
+// Stat Card with 3D animated icon
 function StatCard({ stat, index }: { stat: any; index: number }) {
     const [isHovered, setIsHovered] = useState(false);
 
@@ -107,18 +122,21 @@ function StatCard({ stat, index }: { stat: any; index: number }) {
             <div className="flex items-start justify-between mb-4">
                 <motion.div
                     animate={{
-                        rotate: isHovered ? [0, -10, 10, -10, 0] : 0,
-                        scale: isHovered ? 1.1 : 1
+                        rotate: isHovered ? [0, -15, 15, -15, 0] : 0,
+                        scale: isHovered ? 1.15 : 1,
+                        rotateY: isHovered ? 360 : 0,
+                        rotateZ: isHovered ? [0, 10, -10, 0] : 0
                     }}
-                    transition={{ duration: 0.5 }}
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg ${stat.shadowColor}`}
+                    transition={{ duration: 0.6, ease: 'easeInOut' }}
+                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg ${stat.shadowColor} neumorphic-button`}
+                    style={{ transformStyle: 'preserve-3d' }}
                 >
                     <stat.icon size={22} className="text-white" />
                 </motion.div>
                 <motion.div
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-1 text-[11px] font-medium text-emerald-400/80 bg-emerald-500/10 px-2 py-1 rounded-full"
+                    initial={{ opacity: 0, x: 10, scale: 0.8 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    className="flex items-center gap-1 text-[11px] font-medium text-emerald-400/80 bg-emerald-500/10 px-2 py-1 rounded-full animate-border-glow"
                 >
                     <TrendingUp size={10} />
                     <span>{stat.change}</span>
@@ -128,8 +146,8 @@ function StatCard({ stat, index }: { stat: any; index: number }) {
             <div className="relative">
                 <motion.p
                     key={isHovered ? 'hovered' : 'normal'}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 10, rotateX: -20 }}
+                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
                     className="text-3xl font-bold text-white/90"
                 >
                     {stat.prefix}{stat.animated ? <AnimatedNumber value={parseInt(stat.value)} /> : stat.value}
@@ -137,11 +155,14 @@ function StatCard({ stat, index }: { stat: any; index: number }) {
                 <p className="text-xs text-white/40 mt-1">{stat.label}</p>
             </div>
 
-            {/* Progress bar */}
-            <div className="mt-4 h-1 bg-white/[0.06] rounded-full overflow-hidden">
+            {/* Enhanced Progress bar with glow */}
+            <div className="mt-4 h-1.5 bg-white/[0.06] rounded-full overflow-hidden neumorphic-inset">
                 <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${stat.progress}%` }}
+                    initial={{ width: 0, boxShadow: '0 0 0 rgba(6, 182, 212, 0)' }}
+                    animate={{
+                        width: `${stat.progress}%`,
+                        boxShadow: isHovered ? '0 0 15px rgba(6, 182, 212, 0.5)' : '0 0 0 rgba(6, 182, 212, 0)'
+                    }}
                     transition={{ delay: index * 0.2 + 0.5, duration: 1, ease: 'easeOut' }}
                     className={`h-full rounded-full bg-gradient-to-r ${stat.color}`}
                 />

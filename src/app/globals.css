@@ -98,6 +98,16 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* Enhanced Glassmorphism */
+.glass-enhanced {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
 .glass-card {
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(16px);
@@ -106,6 +116,176 @@ body {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+}
+
+/* Neumorphism Styles */
+.neumorphic {
+  background: linear-gradient(145deg, #1a1f2e, #141820);
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.4),
+    -8px -8px 16px rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.neumorphic-inset {
+  background: linear-gradient(145deg, #141820, #1a1f2e);
+  box-shadow:
+    inset 6px 6px 12px rgba(0, 0, 0, 0.4),
+    inset -6px -6px 12px rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+}
+
+.neumorphic-button {
+  background: linear-gradient(145deg, #1e2433, #181c28);
+  box-shadow:
+    6px 6px 12px rgba(0, 0, 0, 0.4),
+    -4px -4px 10px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.neumorphic-button:hover {
+  background: linear-gradient(145deg, #232a3d, #1a1f2e);
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.5),
+    -4px -4px 12px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.neumorphic-button:active {
+  background: linear-gradient(145deg, #181c28, #1e2433);
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.4),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.02);
+  transform: translateY(0);
+}
+
+.neumorphic-card {
+  background: linear-gradient(145deg, #1a1f2e, #141820);
+  box-shadow:
+    10px 10px 20px rgba(0, 0, 0, 0.45),
+    -8px -8px 16px rgba(255, 255, 255, 0.03),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neumorphic-card:hover {
+  transform: translateY(-8px) rotateX(5deg);
+  box-shadow:
+    20px 20px 40px rgba(0, 0, 0, 0.5),
+    -10px -10px 20px rgba(255, 255, 255, 0.04),
+    0 0 30px rgba(6, 182, 212, 0.15);
+}
+
+/* 3D Transform & Animation */
+.perspective-3d {
+  perspective: 1000px;
+}
+
+.rotate-3d {
+  transform-style: preserve-3d;
+}
+
+.rotate-x-15 {
+  transform: rotateX(15deg);
+}
+
+.rotate-y-15 {
+  transform: rotateY(15deg);
+}
+
+.tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+.tilt-3d:hover {
+  transform: perspective(1000px) rotateX(10deg) rotateY(-10deg) scale(1.02);
+}
+
+/* Floating 3D Animation */
+@keyframes float-3d {
+
+  0%,
+  100% {
+    transform: translateY(0) rotateX(0) rotateY(0);
+  }
+
+  25% {
+    transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotateX(0) rotateY(0);
+  }
+
+  75% {
+    transform: translateY(-10px) rotateX(-5deg) rotateY(-5deg);
+  }
+}
+
+.animate-float-3d {
+  animation: float-3d 6s ease-in-out infinite;
+}
+
+/* 3D Hover Effect */
+.hover-3d {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.hover-3d:hover {
+  transform: translateY(-10px) scale(1.05) rotateX(10deg);
+}
+
+/* Glowing Border Animation */
+@keyframes border-glow {
+
+  0%,
+  100% {
+    border-color: rgba(6, 182, 212, 0.3);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+  }
+
+  50% {
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+}
+
+.animate-border-glow {
+  animation: border-glow 3s ease-in-out infinite;
+}
+
+/* Holographic Effect */
+.holographic {
+  background: linear-gradient(135deg,
+      rgba(6, 182, 212, 0.3) 0%,
+      rgba(139, 92, 246, 0.3) 25%,
+      rgba(236, 72, 153, 0.3) 50%,
+      rgba(139, 92, 246, 0.3) 75%,
+      rgba(6, 182, 212, 0.3) 100%);
+  background-size: 400% 400%;
+  animation: holographic-shift 8s ease infinite;
+}
+
+@keyframes holographic-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .glass-card::before {

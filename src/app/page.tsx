@@ -46,6 +46,7 @@ import PartnerMatch from '@/components/PartnerMatch';
 import TravelPool from '@/components/TravelPool';
 import DhanGyanSimulation from '@/components/DhanGyanSimulation';
 import DhanGyanIframe from '@/components/DhanGyanIframe';
+import ARVRFeatures from '@/components/ARVRFeatures';
 
 const BootScreen = dynamic(() => import('@/components/BootScreen'), { ssr: false });
 
@@ -184,6 +185,8 @@ export default function Home() {
         return <PartnerMatch />;
       case 'travel-pool':
         return <TravelPool />;
+      case 'ar-vr':
+        return <ARVRFeatures />;
       default:
         return <DashboardOverview />;
     }
@@ -195,17 +198,55 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen bg-[#040812] aurora-bg overflow-hidden relative">
+    <div className="flex h-screen bg-[#040812] aurora-bg overflow-hidden relative perspective-3d">
       {/* Ambient glow orbs */}
       <motion.div
-        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+          rotateZ: [0, 180, 360]
+        }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         className="fixed top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-500/[0.04] blur-[150px] pointer-events-none"
+        style={{ transformStyle: 'preserve-3d' }}
       />
       <motion.div
-        animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0.4, 0.2] }}
+        animate={{
+          scale: [1, 1.5, 1],
+          opacity: [0.2, 0.4, 0.2],
+          rotateZ: [0, -180, -360]
+        }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         className="fixed bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-violet-500/[0.04] blur-[120px] pointer-events-none"
+        style={{ transformStyle: 'preserve-3d' }}
+      />
+
+      {/* Floating 3D geometric shapes */}
+      <motion.div
+        animate={{
+          y: [0, -30, 0],
+          rotateX: [0, 360],
+          rotateY: [0, 360],
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        className="fixed top-1/4 right-10 w-20 h-20 border border-cyan-500/20 rounded-2xl pointer-events-none backdrop-blur-sm"
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: 'perspective(1000px) rotateX(45deg) rotateY(45deg)'
+        }}
+      />
+      <motion.div
+        animate={{
+          y: [0, 20, 0],
+          rotateX: [0, -360],
+          rotateZ: [0, 360],
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'linear', delay: 2 }}
+        className="fixed bottom-1/4 left-10 w-16 h-16 border border-violet-500/20 rounded-full pointer-events-none backdrop-blur-sm"
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: 'perspective(1000px)'
+        }}
       />
 
       {/* Sidebar */}
@@ -214,7 +255,7 @@ export default function Home() {
       {/* Main content area */}
       <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Primary content */}
-        <main className={`flex-1 overflow-y-auto ${activeSection === 'campus' || activeSection === 'gov-schemes' || activeSection.startsWith('dg-') ? 'p-0 relative h-full' : 'p-6 lg:p-8'}`}>
+        <main className={`flex-1 overflow-y-auto ${activeSection === 'campus' || activeSection === 'gov-schemes' || activeSection === 'ar-vr' || activeSection.startsWith('dg-') ? 'p-0 relative h-full' : 'p-6 lg:p-8'}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}
@@ -222,7 +263,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className={`${activeSection === 'campus' || activeSection === 'gov-schemes' || activeSection.startsWith('dg-') ? 'w-full h-full' : 'max-w-5xl mx-auto'} animate-in`}
+              className={`${activeSection === 'campus' || activeSection === 'gov-schemes' || activeSection === 'ar-vr' || activeSection.startsWith('dg-') ? 'w-full h-full' : 'max-w-5xl mx-auto'} animate-in`}
             >
               {renderMainContent()}
             </motion.div>

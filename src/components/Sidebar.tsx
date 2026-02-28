@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
     Search,
@@ -48,7 +49,8 @@ import {
     Globe,
     Trophy,
     Map,
-    Building2
+    Building2,
+    Glasses
 } from 'lucide-react';
 import { currentUser } from '@/data/mockData';
 
@@ -102,6 +104,7 @@ const navItems = [
     { id: 'skills', label: 'Skill Tracker', icon: Target },
     { id: 'partner-match', label: 'Partner Match', icon: Heart },
     { id: 'travel-pool', label: 'Travel Pool', icon: Car },
+    { id: 'ar-vr', label: 'AR / VR Labs', icon: Glasses },
 ];
 
 const bottomItems = [
@@ -114,23 +117,33 @@ export default function Sidebar({ activeSection, onNavigate }: SidebarProps) {
 
     return (
         <aside
-            className={`relative flex flex-col h-screen transition-all duration-300 ease-out ${collapsed ? 'w-[72px]' : 'w-[260px]'
-                }`}
+            className={`relative flex flex-col h-screen transition-all duration-300 ease-out ${collapsed ? 'w-[72px]' : 'w-[260px]'}`}
         >
-            {/* Glass background */}
-            <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl border-r border-white/[0.06]" />
+            {/* Glass background with neumorphism effect */}
+            <div className="absolute inset-0 glass-enhanced border-r border-white/[0.08]" />
+
+            {/* Ambient glow */}
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-cyan-500/5 to-transparent pointer-events-none" />
 
             <div className="relative z-10 flex flex-col h-full">
                 {/* Logo */}
                 <div className="flex items-center gap-3 px-5 py-6 border-b border-white/[0.06]">
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-cyan-500/20">
+                    <motion.div
+                        className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-cyan-500/20 neumorphic-button"
+                        whileHover={{ rotate: 360, scale: 1.1 }}
+                        transition={{ duration: 0.5 }}
+                    >
                         <Zap size={18} className="text-white" />
-                    </div>
+                    </motion.div>
                     {!collapsed && (
                         <div className="overflow-hidden">
-                            <h1 className="text-lg font-bold tracking-wider bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
+                            <motion.h1
+                                className="text-lg font-bold tracking-wider bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                            >
                                 GyanGrow
-                            </h1>
+                            </motion.h1>
                             <p className="text-[10px] text-white/30 tracking-widest -mt-0.5">LEARN & GROW OS</p>
                         </div>
                     )}
