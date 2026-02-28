@@ -1,0 +1,508 @@
+/* Hyperspeed Container Styles */
+.hyperspeed-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hyperspeed-container #lights {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.hyperspeed-container #lights canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Hyperspeed Overlay */
+.hyperspeed-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Hyperspeed Content */
+.hyperspeed-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.hyperspeed-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hyperspeed-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hyperspeed-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+/* Game Card Styles */
+.game-card {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.game-card:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Glass Card Effect */
+.glass-card-dark {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Neon Glow Effects */
+.neon-text-purple {
+  text-shadow: 
+    0 0 5px rgba(168, 85, 247, 0.8),
+    0 0 10px rgba(168, 85, 247, 0.6),
+    0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.neon-text-pink {
+  text-shadow: 
+    0 0 5px rgba(236, 72, 153, 0.8),
+    0 0 10px rgba(236, 72, 153, 0.6),
+    0 0 20px rgba(236, 72, 153, 0.4);
+}
+
+/* Button Glow */
+.btn-glow {
+  position: relative;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, #a855f7, #ec4899, #f59e0b);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  filter: blur(8px);
+}
+
+.btn-glow:hover::before {
+  opacity: 0.6;
+}
+
+/* Prize Animation */
+@keyframes prize-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+.prize-active {
+  animation: prize-pulse 0.5s ease-in-out;
+}
+
+/* Card Flip Animation */
+.flip-card {
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  backface-visibility: hidden;
+  position: absolute;
+  inset: 0;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hyperspeed-content {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+}
+
+/* Achievement Badge */
+.achievement-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.achievement-badge::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 215, 0, 0.3) 50%,
+    transparent 70%
+  );
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+/* Category Tags */
+.category-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.category-luck {
+  background: rgba(168, 85, 247, 0.3);
+  color: #a855f7;
+}
+
+.category-skill {
+  background: rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+.category-edu {
+  background: rgba(234, 179, 8, 0.3);
+  color: #eab308;
+}
+
+.category-sim {
+  background: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+/* News Ticker Animation */
+@keyframes ticker {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.news-ticker {
+  animation: ticker 20s linear infinite;
+}
+
+/* Streak Fire Animation */
+@keyframes fire {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.streak-fire {
+  animation: fire 0.5s ease-in-out infinite;
+}
+
+/* Difficulty Selector */
+.difficulty-easy {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.difficulty-medium {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+}
+
+.difficulty-hard {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* Power-up Glow */
+.power-up-active {
+  box-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
+  animation: powerUpPulse 1s ease-in-out infinite;
+}
+
+@keyframes powerUpPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(234, 179, 8, 0.8);
+  }
+}
+
+/* Progress Bar */
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a855f7, #ec4899);
+  transition: width 0.3s ease;
+}
+
+/* Stats Card */
+.stat-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Tab Animation */
+.tab-active {
+  position: relative;
+}
+
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #a855f7, #ec4899);
+}
+
+/* Candlestick Chart Styles */
+.candlestick-tooltip {
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.candlestick-green {
+  fill: #22c55e;
+  stroke: #22c55e;
+}
+
+.candlestick-red {
+  fill: #ef4444;
+  stroke: #ef4444;
+}
+
+.candlestick-wick {
+  stroke-width: 1;
+}
+
+.chart-grid-line {
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-dasharray: 2, 2;
+}
+
+.ma-line-20 {
+  stroke: #3b82f6;
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.ma-line-50 {
+  stroke: #f59e0b;
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.volume-bar-green {
+  fill: rgba(34, 197, 94, 0.4);
+}
+
+.volume-bar-red {
+  fill: rgba(239, 68, 68, 0.4);
+}
+
+.crosshair-line {
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-dasharray: 4, 4;
+}
+
+/* Stock Market Game Styles */
+.stock-ticker {
+  font-family: 'Courier New', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.price-up {
+  color: #22c55e;
+  animation: flashGreen 0.5s ease;
+}
+
+.price-down {
+  color: #ef4444;
+  animation: flashRed 0.5s ease;
+}
+
+@keyframes flashGreen {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(34, 197, 94, 0.3); }
+}
+
+@keyframes flashRed {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(239, 68, 68, 0.3); }
+}
+
+.order-book {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.bid-price {
+  color: #22c55e;
+}
+
+.ask-price {
+  color: #ef4444;
+}
+
+.trade-history-item {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.rsi-overbought {
+  color: #ef4444;
+}
+
+.rsi-oversold {
+  color: #22c55e;
+}
+
+.rsi-neutral {
+  color: #3b82f6;
+}
+
+.macd-positive {
+  color: #22c55e;
+}
+
+.macd-negative {
+  color: #ef4444;
+}
+
+/* Tutorial Overlay */
+.tutorial-overlay {
+  background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,40,0.95) 100%);
+}
+
+/* News Ticker Animation */
+@keyframes newsScroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.news-ticker-text {
+  animation: newsScroll 15s linear infinite;
+  white-space: nowrap;
+}
+
+/* Reduce Motion */
+@media (prefers-reduced-motion: reduce) {
+  .hyperspeed-content {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .game-card {
+    transition: none;
+  }
+  
+  .flip-card-inner {
+    transition: none;
+  }
+  
+  .achievement-badge::before {
+    animation: none;
+  }
+  
+  .news-ticker {
+    animation: none;
+  }
+  
+  .streak-fire {
+    animation: none;
+  }
+  
+  .power-up-active {
+    animation: none;
+  }
+}

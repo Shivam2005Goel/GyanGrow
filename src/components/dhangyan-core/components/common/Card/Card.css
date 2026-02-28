@@ -1,0 +1,41 @@
+.card {
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    transition: all var(--transition-normal);
+}
+
+/* Card Variants */
+.card-glass {
+    background: var(--glass-background);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+}
+
+.card-solid {
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.9), rgba(49, 46, 129, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-xl);
+}
+
+.card-outline {
+    background: transparent;
+    border: 2px solid var(--glass-border);
+    box-shadow: none;
+}
+
+/* Interactive Card */
+.card-interactive {
+    cursor: pointer;
+}
+
+.card-interactive:hover {
+    border-color: var(--primary-500);
+    box-shadow: var(--shadow-2xl);
+}
+
+/* Glow Effect */
+.card.glow {
+    box-shadow: var(--glass-shadow), var(--shadow-glow);
+}

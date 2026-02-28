@@ -1,5 +1,0 @@
-﻿73d4ed3 Update package-lock for merged dependencies
-1c9200e Fix package.json formatting
-a14a1d8 Add new features: QuickPoll, CodeGames, GroupStudy, LearningComponent, PulseDashboard, TodoList and update Sidebar
-e01fc36 docs: comprehensive README with features, setup guide, and architecture
-33aeef1 feat: Enhanced dashboard, Academic Toolkit, Timetable Helper, Resume Builder with modern UI

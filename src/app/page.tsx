@@ -47,11 +47,19 @@ import TravelPool from '@/components/TravelPool';
 import DhanGyanSimulation from '@/components/DhanGyanSimulation';
 import DhanGyanIframe from '@/components/DhanGyanIframe';
 import ARVRFeatures from '@/components/ARVRFeatures';
+import DhanGyanHome from '@/components/DhanGyanHome';
+import DhanGyanGames from '@/components/DhanGyanGames';
+import DhanGyanLearning from '@/components/DhanGyanLearning';
+import DhanGyanMarketplace from '@/components/DhanGyanMarketplace';
+import DhanGyanRoadmap from '@/components/DhanGyanRoadmap';
+import DhanGyanZones from '@/components/DhanGyanZones';
+import DhanGyanSkills from '@/components/DhanGyanSkills';
+import DhanGyanLeaderboard from '@/components/DhanGyanLeaderboard';
 
 const BootScreen = dynamic(() => import('@/components/BootScreen'), { ssr: false });
 
 export default function Home() {
-  const [booted, setBooted] = useState(false);
+  const [landingState, setLandingState] = useState<'dhangyan' | 'booting' | 'app'>('dhangyan');
   const [activeSection, setActiveSection] = useState('dashboard');
 
   // Listen for custom navigate events from dashboard widgets
@@ -63,8 +71,15 @@ export default function Home() {
     return () => window.removeEventListener('navigate', handleNavigate);
   }, []);
 
+  const handleStartJourney = useCallback((section?: string) => {
+    if (section && typeof section === 'string') {
+      setActiveSection(section);
+    }
+    setLandingState('booting');
+  }, []);
+
   const handleBootComplete = useCallback(() => {
-    setBooted(true);
+    setLandingState('app');
   }, []);
 
   const renderMainContent = () => {
@@ -72,21 +87,21 @@ export default function Home() {
       case 'dashboard':
         return <DashboardOverview />;
       case 'dg-games':
-        return <DhanGyanIframe route="/games" />;
+        return <DhanGyanGames onNavigate={setActiveSection} />;
       case 'dg-learning':
-        return <DhanGyanIframe route="/learning" />;
+        return <DhanGyanLearning onNavigate={setActiveSection} />;
       case 'dg-marketplace':
-        return <DhanGyanIframe route="/marketplace" />;
+        return <DhanGyanMarketplace />;
       case 'dg-roadmap':
-        return <DhanGyanIframe route="/roadmap" />;
+        return <DhanGyanRoadmap />;
       case 'dg-zonal':
-        return <DhanGyanIframe route="/zones" />;
+        return <DhanGyanZones />;
       case 'dg-skills':
-        return <DhanGyanIframe route="/skills" />;
+        return <DhanGyanSkills />;
       case 'dg-leaderboard':
-        return <DhanGyanIframe route="/" />;
+        return <DhanGyanLeaderboard />;
       case 'dhangyan':
-        return <DhanGyanSimulation />;
+        return <DhanGyanHome onNavigate={setActiveSection} />;
       case 'timetable':
         return <TimetableHelper />;
       case 'search':
@@ -192,8 +207,12 @@ export default function Home() {
     }
   };
 
-  // Boot screen
-  if (!booted) {
+  // Landing and Boot screen
+  if (landingState === 'dhangyan') {
+    return <DhanGyanHome onNavigate={handleStartJourney} />;
+  }
+
+  if (landingState === 'booting') {
     return <BootScreen onComplete={handleBootComplete} />;
   }
 
