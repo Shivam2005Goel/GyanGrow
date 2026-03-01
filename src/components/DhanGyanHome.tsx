@@ -219,7 +219,7 @@ const Hero = ({ onStart }: any) => {
 
                     <div className="mb-8 flex justify-center">
                         <Shuffle
-                            text="Dhyan Gyan"
+                            text="Gyangrow"
                             tag="h1"
                             className="font-black tracking-tight text-yellow-400"
                             style={{ fontSize: 'clamp(5rem, 12vw, 14rem)', lineHeight: 1.1, textShadow: '0 4px 60px rgba(250, 204, 21, 0.5), 0 0 120px rgba(250, 204, 21, 0.2)' }}
@@ -380,7 +380,7 @@ const WomenEmpowermentSection = () => (
                                     <p className="text-xs text-gray-300">Senior Fintech Analyst</p>
                                 </div>
                             </div>
-                            <p className="mt-3 text-sm text-gray-300 italic">"DhyanGyan gave me the confidence to start my investment journey."</p>
+                            <p className="mt-3 text-sm text-gray-300 italic">"Gyangrow gave me the confidence to start my investment journey."</p>
                         </div>
                     </div>
                 </motion.div>
@@ -457,7 +457,7 @@ const Testimonials = () => (
                     {
                         name: "Priya Patel",
                         role: "Home Maker",
-                        text: "Dhyan Gyan helped me understand simple savings tools that I was too intimidated to try before. Highly recommended!",
+                        text: "Gyangrow helped me understand simple savings tools that I was too intimidated to try before. Highly recommended!",
                         avatar: "PP"
                     },
                     {
