@@ -14,7 +14,7 @@ import {
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-const GEMINI_API_KEY = 'AIzaSyAAzmTY0Eb0_Ytm7SIkCbysBJPf0bWIMWo';
+const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 // ── Types ──

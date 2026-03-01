@@ -67,7 +67,7 @@ export default function MrVighelp() {
 
     // Init Gemini
     const initGemini = useCallback(async () => {
-        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyCf1jW9ZiY1rG_TkVU5ZXftDjmlW0-5Zi8';
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
         if (!apiKey) {
             console.error('Gemini API key is missing');
             return;
@@ -251,7 +251,7 @@ STUDENT PROFILE (ALEX SHARMA):
             setIsTyping(true);
 
             try {
-                const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || 'AIzaSyCf1jW9ZiY1rG_TkVU5ZXftDjmlW0-5Zi8');
+                const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
                 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
                 const imageParts = [
