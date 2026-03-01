@@ -62,7 +62,7 @@ export default function AiMockInterview() {
     useEffect(() => {
         // Load saved keys, fallback to env variables if available
         const savedVapi = localStorage.getItem('vapiKey') || process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || '';
-        const savedGemini = localStorage.getItem('geminiKey') || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+        const savedGemini = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
         const savedSimliKey = localStorage.getItem('simliApiKey') || process.env.NEXT_PUBLIC_SIMLI_API_KEY || '';
         const savedSimliFaceId = localStorage.getItem('simliFaceId') || process.env.NEXT_PUBLIC_SIMLI_FACE_ID || '5514e24d-6086-46a3-ace4-6a7264e5cb7c';
         if (savedVapi) setVapiPublicKey(savedVapi);
@@ -98,7 +98,7 @@ export default function AiMockInterview() {
 
     const saveKeys = () => {
         if (vapiPublicKey) localStorage.setItem('vapiKey', vapiPublicKey);
-        if (geminiApiKey) localStorage.setItem('geminiKey', geminiApiKey);
+        // if (geminiApiKey) localStorage.setItem('geminiKey', geminiApiKey);
         if (simliApiKey) localStorage.setItem('simliApiKey', simliApiKey);
         if (simliFaceId) localStorage.setItem('simliFaceId', simliFaceId);
     };
@@ -545,7 +545,7 @@ export default function AiMockInterview() {
                         {/* Fallback video loop (if Simli is excluded) */}
                         {!simliApiKey && (
                             <video
-                                src="https://videos.pexels.com/video-files/5668875/5668875-uhd_2160_3840_30fps.mp4"
+                                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
                                 loop
                                 playsInline
                                 muted

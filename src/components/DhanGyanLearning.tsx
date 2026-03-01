@@ -58,7 +58,7 @@ const LEARNING_PATHS = [
 ];
 
 const mockCoursesData = [
-    { id: { videoId: '0iR7x8uGNdc' }, snippet: { title: 'Personal Finance Basics', description: 'Learn the fundamentals', thumbnails: { medium: { url: 'https://img.youtube.com/vi/0iR7x8uGNdc/mqdefault.jpg' } } }, difficulty: 'Beginner', duration: '15 min', rating: '4.8', students: 12500, xp: 30, category: 'Budgeting' },
+    { id: { videoId: 'zVqczFZr124' }, snippet: { title: 'Personal Finance Basics', description: 'Learn the fundamentals', thumbnails: { medium: { url: 'https://img.youtube.com/vi/zVqczFZr124/mqdefault.jpg' } } }, difficulty: 'Beginner', duration: '15 min', rating: '4.8', students: 12500, xp: 30, category: 'Budgeting' },
     { id: { videoId: 'dQw4w9WgXcQ' }, snippet: { title: 'Stock Market Investing', description: 'Start your investment journey', thumbnails: { medium: { url: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg' } } }, difficulty: 'Intermediate', duration: '25 min', rating: '4.9', students: 8500, xp: 50, category: 'Investing' },
     { id: { videoId: 'JGwWNGJdvx8' }, snippet: { title: 'Cryptocurrency Explained', description: 'Understanding digital currencies', thumbnails: { medium: { url: 'https://img.youtube.com/vi/JGwWNGJdvx8/mqdefault.jpg' } } }, difficulty: 'Advanced', duration: '30 min', rating: '4.7', students: 6200, xp: 60, category: 'Cryptocurrency' },
 ];
