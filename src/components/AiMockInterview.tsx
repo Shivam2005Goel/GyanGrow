@@ -489,54 +489,7 @@ export default function AiMockInterview() {
                         </div>
                     </div>
 
-                    <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6">
-                        <h3 className="text-lg font-semibold text-white/90 mb-4 border-b border-white/5 pb-4">API Keys</h3>
-                        <div className="space-y-4 mt-4">
-                            <div>
-                                <label className="block text-xs font-medium text-white/50 mb-1">Vapi Public Key</label>
-                                <input
-                                    type="password"
-                                    value={vapiPublicKey}
-                                    onChange={(e) => setVapiPublicKey(e.target.value)}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
-                                    placeholder="Obtain from Vapi Dashboard"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-white/50 mb-1">Google Gemini API Key</label>
-                                <input
-                                    type="password"
-                                    value={geminiApiKey}
-                                    onChange={(e) => setGeminiApiKey(e.target.value)}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
-                                    placeholder="Obtain from Google AI Studio"
-                                />
-                            </div>
-                            <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
-                                <h4 className="text-sm font-medium text-white/70">Optional: Full Real-time Avatar (Simli.com)</h4>
-                                <div>
-                                    <label className="block text-xs font-medium text-white/50 mb-1">Simli API Key</label>
-                                    <input
-                                        type="password"
-                                        value={simliApiKey}
-                                        onChange={(e) => setSimliApiKey(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
-                                        placeholder="Empty for generic avatar, or provide API Key"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-white/50 mb-1">Simli Face ID</label>
-                                    <input
-                                        type="text"
-                                        value={simliFaceId}
-                                        onChange={(e) => setSimliFaceId(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
-                                        placeholder="5514e24d-..."
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
 
                     <button
                         onClick={handleStartInterview}
