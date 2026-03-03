@@ -50,7 +50,8 @@ import {
     Trophy,
     Map,
     Building2,
-    Glasses
+    Glasses,
+    Shield
 } from 'lucide-react';
 import { currentUser } from '@/data/mockData';
 
@@ -100,6 +101,7 @@ const navItems = [
     { id: 'partner-match', label: 'Partner Match', icon: Heart },
     { id: 'travel-pool', label: 'Travel Pool', icon: Car },
     { id: 'ar-vr', label: 'AR / VR Labs', icon: Glasses },
+    { id: 'compliance-ai', label: 'Compliance-AI', icon: Shield },
 ];
 
 const bottomItems = [

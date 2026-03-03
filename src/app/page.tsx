@@ -47,6 +47,7 @@ import DhanGyanMarketplace from '@/components/DhanGyanMarketplace';
 import DhanGyanZones from '@/components/DhanGyanZones';
 import DhanGyanSkills from '@/components/DhanGyanSkills';
 import DhanGyanLeaderboard from '@/components/DhanGyanLeaderboard';
+import ProjectComplianceAI from '@/components/ProjectComplianceAI';
 
 const BootScreen = dynamic(() => import('@/components/BootScreen'), { ssr: false });
 
@@ -188,6 +189,8 @@ export default function Home() {
         return <TravelPool />;
       case 'ar-vr':
         return <ARVRFeatures />;
+      case 'compliance-ai':
+        return <ProjectComplianceAI />;
       default:
         return <DashboardOverview />;
     }
