@@ -129,6 +129,16 @@ GyanGrow is architecturally divided into **5 interconnected ecosystems**, each c
 | 23 | 🔍 **Oracle Search** | `OracleSearch.tsx` | Semantic-powered campus and resource search engine |
 | 24 | 🚀 **Career Launchpad** | `CareerHub.tsx` | **4-in-1 career suite**: LinkedIn Post Generator (AI-powered with tone/type selection), Resume Builder (4 templates: Modern/Classic/Minimal/Creative + AI ATS scoring + PDF export via `html2canvas` + `jsPDF`), Curated Internship Listings (19+ real companies — Google, Microsoft, Amazon, Goldman Sachs, Outreachy, AICTE, IIT Madras etc.), Hackathon Tracker (10+ live/upcoming hackathons — MLH, Devfolio, SIH, ETHIndia etc.) |
 
+#### 🤖 AI Interview
+
+<div align="center">
+  <img src="public/Interview1.png" width="800" alt="AI Interview 1" />
+  <br/><br/>
+  <img src="public/Interview2.png" width="800" alt="AI Interview 2" />
+  <br/><br/>
+  <img src="public/Interview3.png" width="800" alt="AI Interview 3" />
+</div>
+
 ---
 
 ### 🏫 Ecosystem 4: Campus Connectivity
