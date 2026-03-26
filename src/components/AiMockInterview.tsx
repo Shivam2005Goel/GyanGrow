@@ -74,22 +74,45 @@ export default function AiMockInterview() {
         import('@vapi-ai/web').then(({ default: Vapi }) => {
             setVapiInstance(() => Vapi);
         }).catch(err => console.error('Failed to load Vapi SDK', err));
+
+        // Cleanup on unmount
+        return () => {
+            if (vapiRef.current) {
+                try { vapiRef.current.stop(); } catch(e) {}
+            }
+            if ((window as any).__simliClient) {
+                try { (window as any).__simliClient.stop?.(); } catch(e) {}
+                try { (window as any).__simliClient.close?.(); } catch(e) {}
+            }
+        };
     }, []);
 
     // WebCam setup
     useEffect(() => {
+        let stream: MediaStream | null = null;
+        let timer: NodeJS.Timeout;
         if (phase === 'interview') {
-            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-                .then(stream => {
-                    if (userVideoRef.current) {
-                        userVideoRef.current.srcObject = stream;
-                    }
-                })
-                .catch(err => console.error("Webcam error:", err));
+            // Delay camera initialization to allow Vapi to acquire the mic without contention
+            timer = setTimeout(() => {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                    .then(s => {
+                        stream = s;
+                        if (userVideoRef.current) {
+                            userVideoRef.current.srcObject = stream;
+                        }
+                    })
+                    .catch(err => console.error("Webcam error:", err));
+            }, 1000);
+            
+            return () => {
+                clearTimeout(timer);
+                if (stream) stream.getTracks().forEach(track => track.stop());
+            };
         } else {
             if (userVideoRef.current && userVideoRef.current.srcObject) {
-                const stream = userVideoRef.current.srcObject as MediaStream;
-                stream.getTracks().forEach(track => track.stop());
+                const s = userVideoRef.current.srcObject as MediaStream;
+                s.getTracks().forEach(track => track.stop());
+                userVideoRef.current.srcObject = null;
             }
         }
     }, [phase]);
@@ -154,13 +177,17 @@ export default function AiMockInterview() {
             const result = await model.generateContent(promptInfo);
             const systemPrompt = result.response.text().trim();
 
-            // 2. Initialize Vapi with the generated prompt
-            const vapi = new vapiInstance(vapiPublicKey);
-            vapiRef.current = vapi;
+            // 2. Initialize Vapi with the generated prompt if not already tracking an instance
+            let vapi = vapiRef.current;
+            if (!vapi) {
+                vapi = new vapiInstance(vapiPublicKey);
+                vapiRef.current = vapi;
+            }
 
-            // Clear existing listeners
+            // Clear existing listeners to prevent duplicate triggers
             vapi.removeAllListeners('message');
             vapi.removeAllListeners('call-start');
+            vapi.removeAllListeners('call-end');
             vapi.removeAllListeners('error');
 
             // Listeners
