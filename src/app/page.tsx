@@ -48,6 +48,7 @@ import DhanGyanZones from '@/components/DhanGyanZones';
 import DhanGyanSkills from '@/components/DhanGyanSkills';
 import DhanGyanLeaderboard from '@/components/DhanGyanLeaderboard';
 import ProjectComplianceAI from '@/components/ProjectComplianceAI';
+import AthenaResults from '@/components/AthenaResults';
 
 const BootScreen = dynamic(() => import('@/components/BootScreen'), { ssr: false });
 
@@ -191,6 +192,8 @@ export default function Home() {
         return <ARVRFeatures />;
       case 'compliance-ai':
         return <ProjectComplianceAI />;
+      case 'athena-results':
+        return <AthenaResults />;
       default:
         return <DashboardOverview />;
     }

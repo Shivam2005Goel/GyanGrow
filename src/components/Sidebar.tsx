@@ -102,6 +102,7 @@ const navItems = [
     { id: 'travel-pool', label: 'Travel Pool', icon: Car },
     { id: 'ar-vr', label: 'AR / VR Labs', icon: Glasses },
     { id: 'compliance-ai', label: 'Compliance-AI', icon: Shield },
+    { id: 'athena-results', label: 'Athena Results', icon: Activity },
 ];
 
 const bottomItems = [

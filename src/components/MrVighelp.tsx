@@ -87,7 +87,7 @@ STUDENT PROFILE (ALEX SHARMA):
 
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-1.5-flash',
                 systemInstruction: `You are a highly advanced AI assistant named Mr. Vighelp integrated into the SYNAPSE OS application.
         You are deeply context-aware and learn from the user's progress.
         Here is the current user's context: ${userContext}
@@ -100,7 +100,13 @@ STUDENT PROFILE (ALEX SHARMA):
                 history: [],
             });
         } catch (e) {
-            console.error("Failed to initialize Gemini", e);
+            console.error("Failed to initialize Gemini. Check your API key and model ID.", e);
+            setMessages(prev => [...prev, {
+                id: 'error-init',
+                type: 'system',
+                text: "Configuration Error: I'm having trouble connecting to my brain center (Gemini API). Please check if your API key is valid and the 'gemini-1.5-flash' model is enabled.",
+                timestamp: new Date()
+            }]);
         }
     }, [language]);
 
@@ -252,7 +258,7 @@ STUDENT PROFILE (ALEX SHARMA):
 
             try {
                 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
-                const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+                const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
                 const imageParts = [
                     {
