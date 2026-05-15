@@ -189,13 +189,13 @@ GyanGrow is architecturally divided into **5 interconnected ecosystems**, each c
 #### 🚗 Travel Pool
 
 <div align="center">
-  <img src="public/img8.png" width="800" alt="AI Interview 1" />
+  <img src="public/img8.jpg" width="800" alt="AI Interview 1" />
   <br/><br/>
 </div>
 
 #### 🕵️ Lost & Found
 <div align="center">
-  <img src="public/img6.png" width="800" alt="AI Interview 1" />
+  <img src="public/img6.jpg" width="800" alt="AI Interview 1" />
   <br/><br/>
 </div>
 
