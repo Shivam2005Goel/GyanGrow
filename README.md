@@ -199,6 +199,12 @@ GyanGrow is architecturally divided into **5 interconnected ecosystems**, each c
   <br/><br/>
 </div>
 
+🗺️ Campus Explorer
+<div align="center">
+  <img src="public/img4.jpg" width="800" alt="AI Interview 1" />
+  <br/><br/>
+</div>
+
 ---
 
 ### ⚡ Ecosystem 5: Productivity & Administration
