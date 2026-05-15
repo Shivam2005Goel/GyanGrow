@@ -95,6 +95,21 @@ GyanGrow is architecturally divided into **5 interconnected ecosystems**, each c
 | 7 | 🏆 **Campus Leaderboard** | `DhanGyanLeaderboard.tsx` | Compete on a live, animated leaderboard — top contributors get badges |
 | 8 | 🏛️ **Government Schemes Hub** | `GovSchemes.tsx` | Centralized directory to discover scholarships and government financial schemes |
 
+####📖 Learning Modules
+<div align="center">
+  <img src="public/img1.jpg" width="800" alt="AI Interview 1" />
+  <br/><br/>
+</div>
+
+
+#### 🏛️ Government Schemes Hub
+
+<div align="center">
+  <img src="public/img3.jpg" width="800" alt="AI Interview 1" />
+  <br/><br/>
+</div>
+
+
 ---
 
 ### 🧠 Ecosystem 2: Deep Academics & Study Tools
@@ -115,6 +130,13 @@ GyanGrow is architecturally divided into **5 interconnected ecosystems**, each c
 | 18 | 🤝 **Study Buddy Finder** | `StudyBuddy.tsx` | Match with peers by subject, study style, and availability |
 | 19 | 👥 **Group Study Connect** | `GroupStudy.tsx` | Form and manage study groups with scheduling and topic tracking |
 | 20 | 📤 **Note Sharing** | `NoteShare.tsx` | Share and discover peer-uploaded study notes with ratings |
+
+#### 📈 Visual Algorithm
+
+<div align="center">
+  <img src="public/img5.jpg" width="800" alt="AI Interview 1" />
+  <br/><br/>
+</div>
 
 ---
 
@@ -155,6 +177,27 @@ GyanGrow is architecturally divided into **5 interconnected ecosystems**, each c
 | 30 | 🕵️ **Lost & Found** | `LostAndFound.tsx` | Broadcast and claim missing items across the campus grid |
 | 31 | 📊 **Quick Polls** | `QuickPoll.tsx` | Rapid campus sentiment polling with animated result visualization |
 | 32 | ⚙️ **Process Hub** | `ProcessGPS.tsx` | Navigate administrative workflows (fee payment, exam registration, hostel allocation) step-by-step |
+
+#### 🏠 Roommate Finder
+
+<div align="center">
+  <img src="public/img7.jpg" width="800" alt="AI Interview 1" />
+  <br/><br/>
+</div>
+
+
+#### 🚗 Travel Pool
+
+<div align="center">
+  <img src="public/img8.png" width="800" alt="AI Interview 1" />
+  <br/><br/>
+</div>
+
+#### 🕵️ Lost & Found
+<div align="center">
+  <img src="public/img6.png" width="800" alt="AI Interview 1" />
+  <br/><br/>
+</div>
 
 ---
 
